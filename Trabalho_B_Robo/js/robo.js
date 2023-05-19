@@ -13,60 +13,36 @@ var perspectiveCamera,
   legs,
   feet,
   head,
+  thighs,
   activeCamera;
 
 var geometry, material, mesh;
 
-function addTableLeg(obj, x, y, z) {
-  "use strict";
+function createThigh(leftRight,x,y,z){
+  var thigh;
+  thigh = new THREE.Mesh(
+    new THREE.CubeGeometry(2,5,2.5),
+    new THREE.MeshBasicMaterial({color: 0x808080, wireframe: true})
+  );
 
-  geometry = new THREE.CubeGeometry(2, 6, 2);
-  mesh = new THREE.Mesh(geometry, material);
-  mesh.position.set(x, y - 3, z);
-  obj.add(mesh);
-}
+  thigh.position.set(x + leftRight * 4,y,z);
 
-function addTableTop(obj, x, y, z) {
-  "use strict";
-  geometry = new THREE.CubeGeometry(60, 2, 20);
-  mesh = new THREE.Mesh(geometry, material);
-  mesh.position.set(x, y, z);
-  obj.add(mesh);
-}
-
-function createTable(x, y, z) {
-  "use strict";
-
-  var table = new THREE.Object3D();
-
-  material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
-
-  addTableTop(table, 0, 0, 0);
-  addTableLeg(table, -25, -1, -8);
-  addTableLeg(table, -25, -1, 8);
-  addTableLeg(table, 25, -1, 8);
-  addTableLeg(table, 25, -1, -8);
-
-  scene.add(table);
-
-  table.position.x = x;
-  table.position.y = y;
-  table.position.z = z;
+  return thigh;
 }
 
 function createHead(x,y,z){
   var olho1, olho2, antena1, antena2, cabeca, group;
   cabeca = new THREE.Mesh(
     new THREE.CubeGeometry(4,4,4),
-    new THREE.MeshBasicMaterial({color: 0x0000ff, wireframe: false})
+    new THREE.MeshBasicMaterial({color: 0x0000ff, wireframe: true})
   );
   olho1 = new THREE.Mesh(
     new THREE.CubeGeometry(1,0.5,1),
-    new THREE.MeshBasicMaterial({color: 0xffff00, wireframe: false})
+    new THREE.MeshBasicMaterial({color: 0xffff00, wireframe: true})
   );
   olho2 = new THREE.Mesh(
     new THREE.CubeGeometry(1,0.5,1),
-    new THREE.MeshBasicMaterial({color: 0xffff00, wireframe: false})
+    new THREE.MeshBasicMaterial({color: 0xffff00, wireframe: true})
   );
   antena1 = new THREE.Mesh(
     new THREE.ConeGeometry(0.5, 2.5, 32),
@@ -97,19 +73,19 @@ function createLeg(leftRight, x, y, z) {
   var pe, perna, group, roda1, roda2, tanque;
   pe = new THREE.Mesh(
     new THREE.CubeGeometry(4, 2, 2.5),
-    new THREE.MeshBasicMaterial({ color: 0x0000ff, wireframe: false })
+    new THREE.MeshBasicMaterial({ color: 0x0000ff, wireframe: true })
   );
   perna = new THREE.Mesh(
     new THREE.CubeGeometry(4, 13, 4),
-    new THREE.MeshBasicMaterial({ color: 0x0000ff, wireframe: false })
+    new THREE.MeshBasicMaterial({ color: 0x0000ff, wireframe: true })
   );
   roda1 = new THREE.Mesh(
     new THREE.CylinderGeometry(2.25, 2.25, 2, 32),
-    new THREE.MeshBasicMaterial({ color: 0x000001, wireframe: false })
+    new THREE.MeshBasicMaterial({ color: 0x000001, wireframe: true })
   );
   roda2 = new THREE.Mesh(
     new THREE.CylinderGeometry(2.25, 2.25, 2, 32),
-    new THREE.MeshBasicMaterial({ color: 0x000001, wireframe: false })
+    new THREE.MeshBasicMaterial({ color: 0x000001, wireframe: true })
   );
   tanque = new THREE.Mesh(
     new THREE.CylinderGeometry(1, 1, 3.5, 32),
@@ -140,17 +116,21 @@ function createTruck(x, y, z) {
   "use strict";
 
   truck = new THREE.Object3D();
-
   legs = new THREE.Object3D();
+  thighs = new THREE.Object3D();
 
   legs.add(createLeg(-1, -4, 0, 0));
   legs.add(createLeg(1, 4, 0, 0));
 
-  truck.add(legs);
-
   head = createHead(0,15,0);
 
+  thighs.add(createThigh(-1, 0, 9, 0));
+  thighs.add(createThigh(1, 0, 9, 0));
+
+  truck.add(legs);
   truck.add(head);
+  truck.add(thighs);
+
   scene.add(truck);
 
   truck.position.x = x;
@@ -250,13 +230,15 @@ function onKeyDown(e) {
     case 53: // 5 key
       activeCamera = perspectiveCamera;
       break;
-    case 65: //A
-    case 97: //a
+    case 54: // 6 key
       scene.traverse(function (node) {
         if (node instanceof THREE.Mesh) {
           node.material.wireframe = !node.material.wireframe;
         }
       });
+      break;
+    case 65: //A
+    case 97: //a
       break;
     case 69: //E
     case 101: //e

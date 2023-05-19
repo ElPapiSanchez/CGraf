@@ -18,11 +18,12 @@ var perspectiveCamera,
   abdomen,
   torso,
   waist,
+  headTorsoPivot,
   activeCamera;
 
 var geometry, material, mesh;
 
-var distanciaBracoInicial = 10.5, distanciaBracoCurrent = 10.5;
+var distanciaBracoInicial = 10.5, distanciaBracoCurrent = 10.5, headAngle = 0;
 
 function createThigh(leftRight,x,y,z){
   var thigh;
@@ -59,11 +60,12 @@ function giveHead(x,y,z){
     new THREE.MeshBasicMaterial({color: 0x4682BF, wireframe: true})
   );
 
-  cabeca.position.set(x,y,z);
-  antena1.position.set(x+2.5,y+2,z);
-  antena2.position.set(x-2.5,y+2,z);
-  olho1.position.set(x+1,y+1,z+1.5);
-  olho2.position.set(x-1,y+1,z+1.5);
+
+  cabeca.position.set(0,2,0);
+  antena1.position.set(2.5,4,0);
+  antena2.position.set(-2.5,4,0);
+  olho1.position.set(1,3,1.5);
+  olho2.position.set(-1,3,1.5);
 
   group = new THREE.Object3D();
   group.add(cabeca);
@@ -72,13 +74,15 @@ function giveHead(x,y,z){
   group.add(antena1);
   group.add(antena2);
 
+  group.position.set(x,y-2,z);
+
   return group;
 }
 
 function createTorso(x, y, z) {
   var torso;
   torso = new THREE.Mesh(
-    new THREE.CubeGeometry(17, 9, 8.5),
+    new THREE.CubeGeometry(17, 9.2, 8.5),
     new THREE.MeshBasicMaterial({ color: 0xD92121, wireframe: true })
   );
 
@@ -294,7 +298,6 @@ function createTrailer(x, y, z){
   scene.add(group);
 }
 
-
 function createRobot(x, y, z) {
   "use strict";
 
@@ -350,6 +353,21 @@ function decreaseArm(){
     distanciaBracoCurrent -= 0.25;
     rightArm.position.x += 0.25;
     leftArm.position.x -= 0.25;
+  }
+}
+
+function increaseHeadRotation(){
+  if(headAngle < 60){
+    head.rotation.x -= 3.1415926 * ++headAngle * 0.1 / 180;
+  }
+}
+
+function decreaseHeadRotation(){
+  if(headAngle > 0){
+    head.rotation.x += 3.1415926 * --headAngle * 0.1 / 180;
+  }
+  if(headAngle === 0){
+    head.rotation.x = 0;
   }
 }
 
@@ -454,6 +472,7 @@ function onKeyDown(e) {
       });
       break;
     case 65: //A
+      break;
     case 97: //a
       break;
     case 68: //D
@@ -472,6 +491,12 @@ function onKeyDown(e) {
       increaseHeadRotation();
       break;
     case 102: //f
+      increaseHeadRotation();
+      break;
+    case 82: //R
+      decreaseHeadRotation();
+      break;
+    case 114: //r
       decreaseHeadRotation();
       break;
   }

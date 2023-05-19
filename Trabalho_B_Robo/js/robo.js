@@ -10,6 +10,7 @@ var perspectiveCamera,
   truck,
   leftLeg,
   rightLeg,
+  arms,
   legs,
   feet,
   head,
@@ -25,7 +26,7 @@ function createThigh(leftRight,x,y,z){
   var thigh;
   thigh = new THREE.Mesh(
     new THREE.CubeGeometry(2,5,2.5),
-    new THREE.MeshBasicMaterial({color: 0x808080, wireframe: true})
+    new THREE.MeshBasicMaterial({color: 0xA8A9AD, wireframe: true})
   );
 
   thigh.position.set(x + leftRight * 4,y,z);
@@ -37,7 +38,7 @@ function createHead(x,y,z){
   var olho1, olho2, antena1, antena2, cabeca, group;
   cabeca = new THREE.Mesh(
     new THREE.CubeGeometry(4,4,4),
-    new THREE.MeshBasicMaterial({color: 0x0000ff, wireframe: true})
+    new THREE.MeshBasicMaterial({color: 0x4682BF, wireframe: true})
   );
   olho1 = new THREE.Mesh(
     new THREE.CubeGeometry(1,0.5,1),
@@ -49,11 +50,11 @@ function createHead(x,y,z){
   );
   antena1 = new THREE.Mesh(
     new THREE.ConeGeometry(0.5, 2.5, 32),
-    new THREE.MeshBasicMaterial({color: 0x0000ff, wireframe: true})
+    new THREE.MeshBasicMaterial({color: 0x4682BF, wireframe: true})
   );
   antena2 = new THREE.Mesh(
     new THREE.ConeGeometry(0.5, 2.5, 32),
-    new THREE.MeshBasicMaterial({color: 0x0000ff, wireframe: true})
+    new THREE.MeshBasicMaterial({color: 0x4682BF, wireframe: true})
   );
 
   cabeca.position.set(x,y,z);
@@ -75,8 +76,8 @@ function createHead(x,y,z){
 function createTorso(x, y, z) {
   var torso;
   torso = new THREE.Mesh(
-    new THREE.CubeGeometry(17, 9, 6),
-    new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true })
+    new THREE.CubeGeometry(17, 9, 8.5),
+    new THREE.MeshBasicMaterial({ color: 0xD92121, wireframe: true })
   );
 
   torso.position.set(x, y, z);
@@ -88,7 +89,7 @@ function createAbdomen(x, y, z) {
   var abdomen;
   abdomen = new THREE.Mesh(
     new THREE.CubeGeometry(11, 5, 6),
-    new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true })
+    new THREE.MeshBasicMaterial({ color: 0xB11226, wireframe: true })
   );
 
   abdomen.position.set(x, y, z);
@@ -128,15 +129,60 @@ function createWaist(x, y, z) {
   return group;
 }
 
+function createArm(leftRight, x, y, z){
+  var braco, antebraco, baseTubo, saidaTubo, group;
+
+  var larguraBraco = 3.5,
+      comprimentoBraco = 10,
+      comprimentoAntebraco = 8.5,
+      raioBaseTubo = 1,
+      comprimentoBaseTubo = 5,
+      raioSaidaTubo = 0.5,
+      comprimentoSaidaTubo = 3
+  ;
+
+  braco = new THREE.Mesh(
+    new THREE.CubeGeometry(larguraBraco, comprimentoBraco, larguraBraco),
+    new THREE.MeshBasicMaterial({ color: 0xB11226, wireframe: true})
+  );
+
+  antebraco = new THREE.Mesh(
+      new THREE.CubeGeometry(larguraBraco, larguraBraco, comprimentoAntebraco),
+      new THREE.MeshBasicMaterial({ color: 0xB11226, wireframe: true})
+  );
+
+  baseTubo = new THREE.Mesh(
+      new THREE.CylinderGeometry(raioBaseTubo, raioBaseTubo, comprimentoBaseTubo, 32),
+      new THREE.MeshBasicMaterial({ color: 0xA8A9AD, wireframe: true})
+  )
+
+  saidaTubo = new THREE.Mesh(
+      new THREE.CylinderGeometry(raioSaidaTubo, raioSaidaTubo, comprimentoSaidaTubo, 32),
+      new THREE.MeshBasicMaterial({ color: 0xD3D3D3, wireframe: true})
+  );
+
+  braco.position.set(x, y, z - comprimentoAntebraco/2 + larguraBraco / 2);
+  antebraco.position.set(x, y - (comprimentoBraco / 2 + larguraBraco / 2), z);
+  baseTubo.position.set(x + leftRight * (larguraBraco / 2 + raioBaseTubo), y, z - comprimentoAntebraco/2 + larguraBraco / 2);
+  saidaTubo.position.set(x + leftRight * (larguraBraco / 2 + raioBaseTubo), y + comprimentoBaseTubo / 2 + comprimentoSaidaTubo / 2, z - comprimentoAntebraco/2 + larguraBraco / 2)
+  group = new THREE.Object3D();
+  group.add(braco);
+  group.add(antebraco);
+  group.add(baseTubo);
+  group.add(saidaTubo);
+
+  return group;
+}
+
 function createLeg(leftRight, x, y, z) {
   var pe, perna, group, roda1, roda2, tanque;
   pe = new THREE.Mesh(
     new THREE.CubeGeometry(4, 2, 2.5),
-    new THREE.MeshBasicMaterial({ color: 0x0000ff, wireframe: true })
+    new THREE.MeshBasicMaterial({ color: 0x0047AB, wireframe: true })
   );
   perna = new THREE.Mesh(
     new THREE.CubeGeometry(4, 13, 4),
-    new THREE.MeshBasicMaterial({ color: 0x0000ff, wireframe: true })
+    new THREE.MeshBasicMaterial({ color: 0x0047AB, wireframe: true })
   );
   roda1 = new THREE.Mesh(
     new THREE.CylinderGeometry(2.25, 2.25, 2, 32),
@@ -148,7 +194,7 @@ function createLeg(leftRight, x, y, z) {
   );
   tanque = new THREE.Mesh(
     new THREE.CylinderGeometry(1, 1, 3.5, 32),
-    new THREE.MeshBasicMaterial({ color: 0x808080, wireframe: true })
+    new THREE.MeshBasicMaterial({ color: 0xA8A9AD, wireframe: true })
   );
 
   roda1.rotation.z = -3.1415926 / 2;
@@ -175,8 +221,14 @@ function createTruck(x, y, z) {
   "use strict";
 
   truck = new THREE.Object3D();
+
+  arms = new THREE.Object3D();
+
   legs = new THREE.Object3D();
   thighs = new THREE.Object3D();
+
+  arms.add(createArm(-1, -10.5, 24.5, 0));
+  arms.add(createArm(1, 10.5, 24.5, 0));
 
   legs.add(createLeg(-1, -4, 0, 0));
   legs.add(createLeg(1, 4, 0, 0));
@@ -199,6 +251,8 @@ function createTruck(x, y, z) {
   waist = createWaist(0, 13.5, 1);
   truck.add(waist);
 
+  truck.add(arms);
+
   scene.add(truck);
 
   truck.position.x = x;
@@ -215,7 +269,7 @@ function createScene() {
 
   scene.add(new THREE.AxisHelper(10));
 
-  createTruck(0, 8, 0);
+  createTruck(0, 6.5, 0);
 }
 
 function createPerspectiveCamera() {

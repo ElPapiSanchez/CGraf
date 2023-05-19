@@ -14,6 +14,9 @@ var perspectiveCamera,
   feet,
   head,
   thighs,
+  abdomen,
+  torso,
+  waist,
   activeCamera;
 
 var geometry, material, mesh;
@@ -65,6 +68,62 @@ function createHead(x,y,z){
   group.add(olho2);
   group.add(antena1);
   group.add(antena2);
+
+  return group;
+}
+
+function createTorso(x, y, z) {
+  var torso;
+  torso = new THREE.Mesh(
+    new THREE.CubeGeometry(17, 9, 6),
+    new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true })
+  );
+
+  torso.position.set(x, y, z);
+
+  return torso;
+}
+
+function createAbdomen(x, y, z) {
+  var abdomen;
+  abdomen = new THREE.Mesh(
+    new THREE.CubeGeometry(11, 5, 6),
+    new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true })
+  );
+
+  abdomen.position.set(x, y, z);
+
+  return abdomen;
+}
+
+function createWaist(x, y, z) {
+  var group = new THREE.Object3D();
+  var cintura, roda1, roda2;
+
+  cintura = new THREE.Mesh(
+    new THREE.CubeGeometry(17, 4, 2),
+    new THREE.MeshBasicMaterial({ color: 0x808080, wireframe: true })
+  );
+  cintura.position.set(x, y, z);
+  group.add(cintura);
+
+  roda1 = new THREE.Mesh(
+    new THREE.CylinderGeometry(2.25, 2.25, 2, 32),
+    new THREE.MeshBasicMaterial({ color: 0x000001, wireframe: true })
+  );
+  roda2 = new THREE.Mesh(
+    new THREE.CylinderGeometry(2.25, 2.25, 2, 32),
+    new THREE.MeshBasicMaterial({ color: 0x000001, wireframe: true })
+  );  
+
+  roda1.rotation.z = -3.1415926 / 2;
+  roda2.rotation.z = -3.1415926 / 2;
+
+  roda1.position.set(x + 7, y, z - 3);
+  roda2.position.set(x - 7, y, z - 3);
+
+  group.add(roda1);
+  group.add(roda2);
 
   return group;
 }
@@ -122,7 +181,7 @@ function createTruck(x, y, z) {
   legs.add(createLeg(-1, -4, 0, 0));
   legs.add(createLeg(1, 4, 0, 0));
 
-  head = createHead(0,15,0);
+  head = createHead(0,35,0);
 
   thighs.add(createThigh(-1, 0, 9, 0));
   thighs.add(createThigh(1, 0, 9, 0));
@@ -130,6 +189,15 @@ function createTruck(x, y, z) {
   truck.add(legs);
   truck.add(head);
   truck.add(thighs);
+
+  abdomen = createAbdomen(0, 19.5, 0);
+  truck.add(abdomen);
+
+  torso = createTorso(0, 26.5, 0);
+  truck.add(torso);
+
+  waist = createWaist(0, 15, 2);
+  truck.add(waist);
 
   scene.add(truck);
 

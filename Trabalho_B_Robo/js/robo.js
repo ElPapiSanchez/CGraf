@@ -165,6 +165,7 @@ function createArm(leftRight, x, y, z){
   antebraco.position.set(x, y - (comprimentoBraco / 2 + larguraBraco / 2), z);
   baseTubo.position.set(x + leftRight * (larguraBraco / 2 + raioBaseTubo), y, z - comprimentoAntebraco/2 + larguraBraco / 2);
   saidaTubo.position.set(x + leftRight * (larguraBraco / 2 + raioBaseTubo), y + comprimentoBaseTubo / 2 + comprimentoSaidaTubo / 2, z - comprimentoAntebraco/2 + larguraBraco / 2)
+
   group = new THREE.Object3D();
   group.add(braco);
   group.add(antebraco);

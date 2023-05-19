@@ -8,9 +8,8 @@ var perspectiveCamera,
   cameraTop,
   ortographicCamera,
   truck,
-  leftLeg,
-  rightLeg,
-  arms,
+  rightArm,
+  leftArm,
   legs,
   feet,
   head,
@@ -18,9 +17,12 @@ var perspectiveCamera,
   abdomen,
   torso,
   waist,
+  feet,
   activeCamera;
 
 var geometry, material, mesh;
+
+var distanciaBracoInicial = 10.5, distanciaBracoCurrent = 10.5;
 
 function createThigh(leftRight,x,y,z){
   var thigh;
@@ -34,7 +36,7 @@ function createThigh(leftRight,x,y,z){
   return thigh;
 }
 
-function createHead(x,y,z){
+function giveHead(x,y,z){
   var olho1, olho2, antena1, antena2, cabeca, group;
   cabeca = new THREE.Mesh(
     new THREE.CubeGeometry(4,4,4),
@@ -158,7 +160,7 @@ function createArm(leftRight, x, y, z){
 
   saidaTubo = new THREE.Mesh(
       new THREE.CylinderGeometry(raioSaidaTubo, raioSaidaTubo, comprimentoSaidaTubo, 32),
-      new THREE.MeshBasicMaterial({ color: 0xD3D3D3, wireframe: true})
+      new THREE.MeshBasicMaterial({ color: 0x808080, wireframe: true})
   );
 
   braco.position.set(x, y, z - comprimentoAntebraco/2 + larguraBraco / 2);
@@ -176,11 +178,7 @@ function createArm(leftRight, x, y, z){
 }
 
 function createLeg(leftRight, x, y, z) {
-  var pe, perna, group, roda1, roda2, tanque;
-  pe = new THREE.Mesh(
-    new THREE.CubeGeometry(4, 2, 2.5),
-    new THREE.MeshBasicMaterial({ color: 0x0047AB, wireframe: true })
-  );
+  var perna, group, roda1, roda2, tanque;
   perna = new THREE.Mesh(
     new THREE.CubeGeometry(4, 13, 4),
     new THREE.MeshBasicMaterial({ color: 0x0047AB, wireframe: true })
@@ -202,18 +200,38 @@ function createLeg(leftRight, x, y, z) {
   roda2.rotation.z = -3.1415926 / 2;
 
   perna.position.set(x, y, z);
-  pe.position.set(x, y - 5.5, z + 3.25);
 
   roda1.position.set(x + leftRight * 3, y - 4.25, z);
   roda2.position.set(x + leftRight * 3, y + 0.25, z);
   tanque.position.set(x + leftRight * 3, y + 4.5, z);
 
   group = new THREE.Object3D();
-  group.add(pe);
   group.add(perna);
   group.add(roda1);
   group.add(roda2);
   group.add(tanque);
+
+  return group;
+}
+
+function createFeet(x,y,z){
+  var pe1, pe2, group;
+
+  pe1 = new THREE.Mesh(
+    new THREE.CubeGeometry(4, 2, 2.5),
+    new THREE.MeshBasicMaterial({ color: 0x0047AB, wireframe: true })
+  );
+  pe2 = new THREE.Mesh(
+    new THREE.CubeGeometry(4, 2, 2.5),
+    new THREE.MeshBasicMaterial({ color: 0x0047AB, wireframe: true })
+  );
+
+  pe1.position.set(x, y - 5.5, z + 3.25);
+  pe2.position.set(x * -1, y - 5.5, z + 3.25);
+
+  group = new THREE.Object3D();
+  group.add(pe1);
+  group.add(pe2);
 
   return group;
 }
@@ -223,42 +241,57 @@ function createTruck(x, y, z) {
 
   truck = new THREE.Object3D();
 
-  arms = new THREE.Object3D();
-
   legs = new THREE.Object3D();
   thighs = new THREE.Object3D();
 
-  arms.add(createArm(-1, -10.5, 24.5, 0));
-  arms.add(createArm(1, 10.5, 24.5, 0));
+  rightArm = createArm(-1, -1 * distanciaBracoInicial, 24.5, 0);
+  leftArm = createArm(1, distanciaBracoInicial, 24.5, 0);
 
   legs.add(createLeg(-1, -4, 0, 0));
   legs.add(createLeg(1, 4, 0, 0));
 
-  head = createHead(0,31.5,0);
+  head = giveHead(0,31.5,0);
 
   thighs.add(createThigh(-1, 0, 9, 0));
   thighs.add(createThigh(1, 0, 9, 0));
 
-  truck.add(legs);
-  truck.add(head);
-  truck.add(thighs);
-
   torso = createTorso(0, 25, 0);
-  truck.add(torso);
-
   abdomen = createAbdomen(0, 18, 0);
-  truck.add(abdomen);
-
   waist = createWaist(0, 13.5, 1);
-  truck.add(waist);
 
-  truck.add(arms);
+  feet = createFeet(4,0,0);
+
+  truck.add(head);
+  truck.add(torso);
+  truck.add(leftArm);
+  truck.add(rightArm);
+  truck.add(abdomen);
+  truck.add(waist);
+  truck.add(thighs);
+  truck.add(legs);
+  truck.add(feet);
 
   scene.add(truck);
 
   truck.position.x = x;
   truck.position.y = y;
   truck.position.z = z;
+}
+
+function increaseArm(){
+  if(distanciaBracoCurrent < distanciaBracoInicial){
+    distanciaBracoCurrent += 0.25;
+    rightArm.position.x -= 0.25;
+    leftArm.position.x += 0.25;
+  }
+}
+
+function decreaseArm(){
+  if(distanciaBracoCurrent > distanciaBracoInicial - 3.75){
+    distanciaBracoCurrent -= 0.25;
+    rightArm.position.x += 0.25;
+    leftArm.position.x -= 0.25;
+  }
 }
 
 function createScene() {
@@ -363,13 +396,23 @@ function onKeyDown(e) {
     case 65: //A
     case 97: //a
       break;
+    case 68: //D
+      decreaseArm();
+      break;
+    case 100: //d
+      decreaseArm();
+      break;
     case 69: //E
+      increaseArm();
+      break;
     case 101: //e
-      scene.traverse(function (node) {
-        if (node instanceof THREE.AxisHelper) {
-          node.visible = !node.visible;
-        }
-      });
+      decreaseArm();
+      break;
+    case 70: //F
+      increaseHeadRotation();
+      break;
+    case 102: //f
+      decreaseHeadRotation();
       break;
   }
 }

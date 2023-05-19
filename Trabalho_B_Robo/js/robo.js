@@ -181,7 +181,7 @@ function createTruck(x, y, z) {
   legs.add(createLeg(-1, -4, 0, 0));
   legs.add(createLeg(1, 4, 0, 0));
 
-  head = createHead(0,35,0);
+  head = createHead(0,31.5,0);
 
   thighs.add(createThigh(-1, 0, 9, 0));
   thighs.add(createThigh(1, 0, 9, 0));
@@ -190,13 +190,13 @@ function createTruck(x, y, z) {
   truck.add(head);
   truck.add(thighs);
 
-  abdomen = createAbdomen(0, 19.5, 0);
-  truck.add(abdomen);
-
-  torso = createTorso(0, 26.5, 0);
+  torso = createTorso(0, 25, 0);
   truck.add(torso);
 
-  waist = createWaist(0, 15, 2);
+  abdomen = createAbdomen(0, 18, 0);
+  truck.add(abdomen);
+
+  waist = createWaist(0, 13.5, 1);
   truck.add(waist);
 
   scene.add(truck);

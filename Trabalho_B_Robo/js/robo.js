@@ -18,12 +18,11 @@ var perspectiveCamera,
   abdomen,
   torso,
   waist,
-  headTorsoPivot,
   activeCamera;
 
 var geometry, material, mesh;
 
-var distanciaBracoInicial = 10.5, distanciaBracoCurrent = 10.5, headAngle = 0;
+var distanciaBracoInicial = 10.5, distanciaBracoCurrent = 10.5, headAngle = 0, feetAngle = 0;
 
 function createThigh(leftRight,x,y,z){
   var thigh;
@@ -230,10 +229,12 @@ function createFeet(x,y,z){
     new THREE.MeshBasicMaterial({ color: 0x0047AB, wireframe: true })
   );
 
-  pe1.position.set(x, y - 5.5, z + 3.25);
-  pe2.position.set(x * -1, y - 5.5, z + 3.25);
+  pe1.position.set(x,1,1.25);
+  pe2.position.set(x * -1,1,1.25);
 
   group = new THREE.Object3D();
+
+  group.position.set(0,y-6.5,z+2);
   group.add(pe1);
   group.add(pe2);
 
@@ -371,6 +372,24 @@ function decreaseHeadRotation(){
   }
 }
 
+function increaseFeetRotation(){
+  if(feetAngle < 60){
+    feet.rotation.x += 3.1415926 * ++feetAngle * 0.1 / 180;
+  }
+  if(feetAngle === 60){
+    feet.rotation.x = 3.1415926;
+  }
+}
+
+function decreaseFeetRotation(){
+  if(feetAngle > 0){
+    feet.rotation.x -= 3.1415926 * --feetAngle * 0.1 / 180;
+  }
+  if(feetAngle === 0){
+    feet.rotation.x = 0;
+  }
+}
+
 function createScene() {
   "use strict";
 
@@ -472,8 +491,10 @@ function onKeyDown(e) {
       });
       break;
     case 65: //A
+      increaseFeetRotation();
       break;
     case 97: //a
+      increaseFeetRotation();
       break;
     case 68: //D
       decreaseArm();
@@ -492,6 +513,12 @@ function onKeyDown(e) {
       break;
     case 102: //f
       increaseHeadRotation();
+      break;
+    case 81: //Q
+      decreaseFeetRotation();
+      break;
+    case 113: //q
+      decreaseFeetRotation();
       break;
     case 82: //R
       decreaseHeadRotation();

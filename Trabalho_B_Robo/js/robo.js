@@ -17,7 +17,6 @@ var perspectiveCamera,
   abdomen,
   torso,
   waist,
-  feet,
   activeCamera;
 
 var geometry, material, mesh;
@@ -236,7 +235,8 @@ function createFeet(x,y,z){
   return group;
 }
 
-function createTruck(x, y, z) {
+
+function createRobot(x, y, z) {
   "use strict";
 
   truck = new THREE.Object3D();
@@ -303,7 +303,7 @@ function createScene() {
 
   scene.add(new THREE.AxisHelper(10));
 
-  createTruck(0, 6.5, 0);
+  createRobot(0, 6.5, 0);
 }
 
 function createPerspectiveCamera() {

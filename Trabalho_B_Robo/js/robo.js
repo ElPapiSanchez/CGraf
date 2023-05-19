@@ -8,6 +8,7 @@ var perspectiveCamera,
   cameraTop,
   ortographicCamera,
   truck,
+  trailer,
   rightArm,
   leftArm,
   legs,
@@ -235,6 +236,64 @@ function createFeet(x,y,z){
   return group;
 }
 
+function createTrailer(x, y, z){
+  "use strict";
+
+  var reboque, roda1, roda2, roda3, roda4, pecaDeLigacao, group;
+
+  const altura = 20, largura = 20, comprimento = 65;
+
+  reboque = new THREE.Mesh(
+      new THREE.CubeGeometry(largura, altura, comprimento),
+      new THREE.MeshBasicMaterial({ color: 0x666666, wireframe: true})
+  );
+
+  roda1 = new THREE.Mesh(
+      new THREE.CylinderGeometry(2.25, 2.25, 2, 32),
+      new THREE.MeshBasicMaterial({ color: 0x000001, wireframe: true })
+  );
+
+  roda2 = new THREE.Mesh(
+      new THREE.CylinderGeometry(2.25, 2.25, 2, 32),
+      new THREE.MeshBasicMaterial({ color: 0x000001, wireframe: true })
+  );
+
+  roda3 = new THREE.Mesh(
+      new THREE.CylinderGeometry(2.25, 2.25, 2, 32),
+      new THREE.MeshBasicMaterial({ color: 0x000001, wireframe: true })
+  );
+
+  roda4 = new THREE.Mesh(
+      new THREE.CylinderGeometry(2.25, 2.25, 2, 32),
+      new THREE.MeshBasicMaterial({ color: 0x000001, wireframe: true })
+  );
+
+  pecaDeLigacao = new THREE.Mesh(
+      new THREE.CubeGeometry(2, 2, 4),
+      new THREE.MeshBasicMaterial({ color: 0x86af7b, wireframe: true})
+  );
+
+  roda1.rotation.z = -3.1415926 / 2;
+  roda2.rotation.z = -3.1415926 / 2;
+  roda3.rotation.z = -3.1415926 / 2;
+  roda4.rotation.z = -3.1415926 / 2;
+
+  reboque.position.set(x, y + altura/2 + 4.5, z);
+  roda1.position.set(x + largura / 2 - 1, y + 2.25, z - comprimento/2 + 2.25);
+  roda2.position.set(x + largura / 2 - 1, y + 2.25, z - comprimento/2 + 7);
+  roda3.position.set(x - largura / 2 + 1, y + 2.25, z - comprimento/2 + 2.25);
+  roda4.position.set(x - largura / 2 + 1, y + 2.25, z - comprimento/2 + 7);
+  pecaDeLigacao.position.set(x, y + 3.5, z + comprimento/2 + 1);
+  group = new THREE.Object3D();
+  group.add(reboque);
+  group.add(roda1);
+  group.add(roda2);
+  group.add(roda3);
+  group.add(roda4);
+  group.add(pecaDeLigacao);
+  scene.add(group);
+}
+
 
 function createRobot(x, y, z) {
   "use strict";
@@ -304,6 +363,7 @@ function createScene() {
   scene.add(new THREE.AxisHelper(10));
 
   createRobot(0, 6.5, 0);
+  createTrailer(0, 0, -70);
 }
 
 function createPerspectiveCamera() {

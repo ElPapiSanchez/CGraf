@@ -11,6 +11,8 @@ var perspectiveCamera,
   leftLeg,
   rightLeg,
   legs,
+  feet,
+  head,
   activeCamera;
 
 var geometry, material, mesh;
@@ -50,6 +52,45 @@ function createTable(x, y, z) {
   table.position.x = x;
   table.position.y = y;
   table.position.z = z;
+}
+
+function createHead(x,y,z){
+  var olho1, olho2, antena1, antena2, cabeca, group;
+  cabeca = new THREE.Mesh(
+    new THREE.CubeGeometry(4,4,4),
+    new THREE.MeshBasicMaterial({color: 0x0000ff, wireframe: false})
+  );
+  olho1 = new THREE.Mesh(
+    new THREE.CubeGeometry(1,0.5,1),
+    new THREE.MeshBasicMaterial({color: 0xffff00, wireframe: false})
+  );
+  olho2 = new THREE.Mesh(
+    new THREE.CubeGeometry(1,0.5,1),
+    new THREE.MeshBasicMaterial({color: 0xffff00, wireframe: false})
+  );
+  antena1 = new THREE.Mesh(
+    new THREE.ConeGeometry(0.5, 2.5, 32),
+    new THREE.MeshBasicMaterial({color: 0x0000ff, wireframe: true})
+  );
+  antena2 = new THREE.Mesh(
+    new THREE.ConeGeometry(0.5, 2.5, 32),
+    new THREE.MeshBasicMaterial({color: 0x0000ff, wireframe: true})
+  );
+
+  cabeca.position.set(x,y,z);
+  antena1.position.set(x+2.5,y+2,z);
+  antena2.position.set(x-2.5,y+2,z);
+  olho1.position.set(x+1,y+1,z+1.5);
+  olho2.position.set(x-1,y+1,z+1.5);
+
+  group = new THREE.Object3D();
+  group.add(cabeca);
+  group.add(olho1);
+  group.add(olho2);
+  group.add(antena1);
+  group.add(antena2);
+
+  return group;
 }
 
 function createLeg(leftRight, x, y, z) {
@@ -107,6 +148,9 @@ function createTruck(x, y, z) {
 
   truck.add(legs);
 
+  head = createHead(0,15,0);
+
+  truck.add(head);
   scene.add(truck);
 
   truck.position.x = x;

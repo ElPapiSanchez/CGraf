@@ -18,11 +18,12 @@ var perspectiveCamera,
   abdomen,
   torso,
   waist,
+  fullLeg,
   activeCamera;
 
 var geometry, material, mesh;
 
-var distanciaBracoInicial = 10.5, distanciaBracoCurrent = 10.5, headAngle = 0, feetAngle = 0;
+var distanciaBracoInicial = 10.5, distanciaBracoCurrent = 10.5, headAngle = 0, feetAngle = 0, waistAngle = 0;
 
 function createThigh(leftRight,x,y,z){
   var thigh;
@@ -122,8 +123,8 @@ function createWaist(x, y, z) {
     new THREE.MeshBasicMaterial({ color: 0x000001, wireframe: true })
   );  
 
-  roda1.rotation.z = -3.1415926 / 2;
-  roda2.rotation.z = -3.1415926 / 2;
+  roda1.rotation.z = -3.1413926 / 2;
+  roda2.rotation.z = -3.1413926 / 2;
 
   roda1.position.set(x + 7, y, z - 3);
   roda2.position.set(x - 7, y, z - 3);
@@ -199,8 +200,8 @@ function createLeg(leftRight, x, y, z) {
     new THREE.MeshBasicMaterial({ color: 0xA8A9AD, wireframe: true })
   );
 
-  roda1.rotation.z = -3.1415926 / 2;
-  roda2.rotation.z = -3.1415926 / 2;
+  roda1.rotation.z = -3.1413926 / 2;
+  roda2.rotation.z = -3.1413926 / 2;
 
   perna.position.set(x, y, z);
 
@@ -246,7 +247,7 @@ function createTrailer(x, y, z){
 
   var reboque, roda1, roda2, roda3, roda4, pecaDeLigacao, group;
 
-  const altura = 20, largura = 20, comprimento = 65;
+  const altura = 13, largura = 13, comprimento = 65;
 
   reboque = new THREE.Mesh(
       new THREE.CubeGeometry(largura, altura, comprimento),
@@ -278,10 +279,10 @@ function createTrailer(x, y, z){
       new THREE.MeshBasicMaterial({ color: 0x86af7b, wireframe: true})
   );
 
-  roda1.rotation.z = -3.1415926 / 2;
-  roda2.rotation.z = -3.1415926 / 2;
-  roda3.rotation.z = -3.1415926 / 2;
-  roda4.rotation.z = -3.1415926 / 2;
+  roda1.rotation.z = -3.1413926 / 2;
+  roda2.rotation.z = -3.1413926 / 2;
+  roda3.rotation.z = -3.1413926 / 2;
+  roda4.rotation.z = -3.1413926 / 2;
 
   reboque.position.set(x, y + altura/2 + 4.5, z);
   roda1.position.set(x + largura / 2 - 1, y + 2.25, z - comprimento/2 + 2.25);
@@ -307,32 +308,47 @@ function createRobot(x, y, z) {
   legs = new THREE.Object3D();
   thighs = new THREE.Object3D();
 
+  fullLeg = new THREE.Object3D();
+
+  
+
   rightArm = createArm(-1, -1 * distanciaBracoInicial, 24.5, 0);
   leftArm = createArm(1, distanciaBracoInicial, 24.5, 0);
 
-  legs.add(createLeg(-1, -4, 0, 0));
-  legs.add(createLeg(1, 4, 0, 0));
-
   head = giveHead(0,31.5,0);
-
-  thighs.add(createThigh(-1, 0, 9, 0));
-  thighs.add(createThigh(1, 0, 9, 0));
 
   torso = createTorso(0, 25, 0);
   abdomen = createAbdomen(0, 18, 0);
   waist = createWaist(0, 13.5, 1);
 
-  feet = createFeet(4,0,0);
+  legs.add(createLeg(-1, -4, 0 - 13.5, 0));
+  legs.add(createLeg(1, 4, 0 - 13.5, 0));
+
+  thighs.add(createThigh(-1, 0, 9 - 13.5, 0));
+  thighs.add(createThigh(1, 0, 9 - 13.5, 0));
+
+  feet = createFeet(4,0 - 13.5,0);
+
+  fullLeg.position.set(0,13.5,0);
+
+  
+
+  fullLeg.add(legs);
+  fullLeg.add(thighs);
+  fullLeg.add(feet);
 
   truck.add(head);
+  
   truck.add(torso);
   truck.add(leftArm);
   truck.add(rightArm);
   truck.add(abdomen);
   truck.add(waist);
-  truck.add(thighs);
-  truck.add(legs);
-  truck.add(feet);
+  truck.add(fullLeg);
+  
+  //truck.add(thighs);
+  //truck.add(legs);
+  //truck.add(feet);
 
   scene.add(truck);
 
@@ -359,13 +375,13 @@ function decreaseArm(){
 
 function increaseHeadRotation(){
   if(headAngle < 60){
-    head.rotation.x -= 3.1415926 * ++headAngle * 0.1 / 180;
+    head.rotation.x -= 3.1413926 * ++headAngle * 0.1 / 180;
   }
 }
 
 function decreaseHeadRotation(){
   if(headAngle > 0){
-    head.rotation.x += 3.1415926 * --headAngle * 0.1 / 180;
+    head.rotation.x += 3.1413926 * --headAngle * 0.1 / 180;
   }
   if(headAngle === 0){
     head.rotation.x = 0;
@@ -374,19 +390,37 @@ function decreaseHeadRotation(){
 
 function increaseFeetRotation(){
   if(feetAngle < 60){
-    feet.rotation.x += 3.1415926 * ++feetAngle * 0.1 / 180;
+    feet.rotation.x += 3.1413926 * ++feetAngle * 0.1 / 180;
   }
   if(feetAngle === 60){
-    feet.rotation.x = 3.1415926;
+    feet.rotation.x = 3.1413926;
   }
 }
 
 function decreaseFeetRotation(){
   if(feetAngle > 0){
-    feet.rotation.x -= 3.1415926 * --feetAngle * 0.1 / 180;
+    feet.rotation.x -= 3.1413926 * --feetAngle * 0.1 / 180;
   }
   if(feetAngle === 0){
     feet.rotation.x = 0;
+  }
+}
+
+function increaseWaistRotation(){
+  if(waistAngle < 41){
+    fullLeg.rotation.x += 3.1413926 * ++waistAngle * 0.1 / 180;
+  }
+  if(waistAngle === 41){
+    fullLeg.rotation.x = 3.1413926 / 2;
+  }
+}
+
+function decreaseWaistRotation(){
+  if(waistAngle > 0){
+    fullLeg.rotation.x -= 3.1413926 * --waistAngle * 0.1 / 180;
+  }
+  if(waistAngle === 0){
+    fullLeg.rotation.x = 0;
   }
 }
 
@@ -526,6 +560,18 @@ function onKeyDown(e) {
     case 114: //r
       decreaseHeadRotation();
       break;
+    case 83: //S
+      increaseWaistRotation();
+      break;
+    case 113: //s
+      increaseWaistRotation();
+      break;
+    case 80://87: //W
+      decreaseWaistRotation();
+      break;
+    case 112: //119: //w
+      decreaseWaistRotation();
+      break;
   }
 }
 
@@ -563,7 +609,7 @@ function animate() {
   /*if (ball.userData.jumping) {
     ball.userData.step += 0.04;
     ball.position.y = Math.abs(30 * Math.sin(ball.userData.step));
-    ball.position.z = 15 * Math.cos(ball.userData.step);
+    ball.position.z = 13 * Math.cos(ball.userData.step);
   }*/
   render();
 

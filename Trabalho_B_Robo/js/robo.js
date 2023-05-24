@@ -25,6 +25,19 @@ var geometry, material, mesh;
 
 var distanciaBracoInicial = 10.5, distanciaBracoCurrent = 10.5, headAngle = 0, feetAngle = 0, waistAngle = 0;
 
+let trailerForward = false,
+    trailerBackward = false,
+    trailerLeft = false,
+    trailerRight = false,
+    armIncrease = false,
+    armDecrease = false,
+    headIncrease = false,
+    headDecrease = false,
+    feetIncrease = false,
+    feetDecrease = false,
+    waistIncrease = false,
+    waistDecrease = false;
+
 function createThigh(leftRight,x,y,z){
   var thigh;
   thigh = new THREE.Mesh(
@@ -245,7 +258,7 @@ function createFeet(x,y,z){
 function createTrailer(x, y, z){
   "use strict";
 
-  var reboque, roda1, roda2, roda3, roda4, pecaDeLigacao, group;
+  var reboque, roda1, roda2, roda3, roda4, pecaDeLigacao;
 
   const altura = 13, largura = 13, comprimento = 65;
 
@@ -290,14 +303,19 @@ function createTrailer(x, y, z){
   roda3.position.set(x - largura / 2 + 1, y + 2.25, z - comprimento/2 + 2.25);
   roda4.position.set(x - largura / 2 + 1, y + 2.25, z - comprimento/2 + 7);
   pecaDeLigacao.position.set(x, y + 3.5, z + comprimento/2 + 1);
-  group = new THREE.Object3D();
-  group.add(reboque);
-  group.add(roda1);
-  group.add(roda2);
-  group.add(roda3);
-  group.add(roda4);
-  group.add(pecaDeLigacao);
-  scene.add(group);
+  trailer = new THREE.Object3D();
+  trailer.add(reboque);
+  trailer.add(roda1);
+  trailer.add(roda2);
+  trailer.add(roda3);
+  trailer.add(roda4);
+  trailer.add(pecaDeLigacao);
+
+  scene.add(trailer);
+
+  trailer.position.x = x;
+  trailer.position.y = y + 17.75;
+  trailer.position.z = z;
 }
 
 function createRobot(x, y, z) {
@@ -525,52 +543,129 @@ function onKeyDown(e) {
       });
       break;
     case 65: //A
-      increaseFeetRotation();
+      feetIncrease = true;
       break;
     case 97: //a
-      increaseFeetRotation();
+      feetIncrease = true;
       break;
     case 68: //D
-      decreaseArm();
+      armDecrease = true;
       break;
     case 100: //d
-      decreaseArm();
+      armDecrease = true;
       break;
     case 69: //E
-      increaseArm();
+      armIncrease = true;
       break;
     case 101: //e
-      decreaseArm();
+      armIncrease = true;
       break;
     case 70: //F
-      increaseHeadRotation();
+      headIncrease = true;
       break;
     case 102: //f
-      increaseHeadRotation();
+      headIncrease = true;
       break;
     case 81: //Q
-      decreaseFeetRotation();
+      feetDecrease = true;
       break;
     case 113: //q
-      decreaseFeetRotation();
+      feetDecrease = true;
       break;
     case 82: //R
-      decreaseHeadRotation();
+      headDecrease = true;
       break;
     case 114: //r
-      decreaseHeadRotation();
+      headDecrease = true;
+      break;
+    case 37: //left
+        trailerLeft = true;
+      break;
+    case 38: //up
+        trailerForward = true;
+      break;
+    case 39: //right
+        trailerRight = true;
+      break;
+    case 40: //down
+        trailerBackward = true;
       break;
     case 83: //S
-      increaseWaistRotation();
+      waistIncrease = true;
       break;
-    case 113: //s
-      increaseWaistRotation();
+    case 115: //s
+      waistIncrease = true;
       break;
-    case 80://87: //W
-      decreaseWaistRotation();
+    case 87: //W
+      waistDecrease = true;
       break;
-    case 112: //119: //w
-      decreaseWaistRotation();
+    case 119: //w
+      waistDecrease = true;
+      break;
+  }
+}
+
+function onKeyUp(e){
+  switch (e.keyCode){
+    case 65: //A
+      feetIncrease = false;
+      break;
+    case 97: //a
+      feetIncrease = false;
+      break;
+    case 70: //F
+      headIncrease = false;
+      break;
+    case 102: //f
+      headIncrease = false;
+      break;
+    case 81: //Q
+      feetDecrease = false;
+      break;
+    case 113: //q
+      feetDecrease = false;
+      break;
+    case 82: //R
+      headDecrease = false;
+      break;
+    case 114: //r
+      headDecrease = false;
+      break;
+    case 68: //D
+      armDecrease = false;
+      break;
+    case 100: //d
+      armDecrease = false;
+      break;
+    case 69: //E
+      armIncrease = false;
+      break;
+    case 101: //e
+      armIncrease = false;
+      break;
+    case 37: //left
+      trailerLeft = false;
+      break;
+    case 38: //up
+      trailerForward = false;
+      break;
+    case 39: //right
+      trailerRight = false;
+      break;
+    case 40: //down
+      trailerBackward = false;
+      break;
+    case 83: //S
+      waistIncrease = false;
+      break;
+    case 115: //s
+      waistIncrease = false;
+      break;
+    case 87: //W
+      waistDecrease = false;
+      break;
+    case 119: //w
+      waistDecrease = false;
       break;
   }
 }
@@ -600,6 +695,7 @@ function init() {
   render();
 
   window.addEventListener("keydown", onKeyDown);
+  window.addEventListener("keyup", onKeyUp);
   window.addEventListener("resize", onResize);
 }
 
@@ -611,6 +707,24 @@ function animate() {
     ball.position.y = Math.abs(30 * Math.sin(ball.userData.step));
     ball.position.z = 13 * Math.cos(ball.userData.step);
   }*/
+
+  if (trailerLeft) trailer.position.x += 0.25;
+  if (trailerRight) trailer.position.x -= 0.25;
+  if (trailerForward) trailer.position.z += 0.25;
+  if (trailerBackward) trailer.position.z -= 0.25;
+
+  if (armIncrease) increaseArm();
+  if (armDecrease) decreaseArm();
+
+  if (headIncrease) increaseHeadRotation();
+  if (headDecrease) decreaseHeadRotation();
+
+  if (feetIncrease) increaseFeetRotation();
+  if (feetDecrease) decreaseFeetRotation();
+
+  if (waistIncrease) increaseWaistRotation();
+  if (waistDecrease) decreaseWaistRotation();
+
   render();
 
   requestAnimationFrame(animate);

@@ -337,7 +337,7 @@ function createRobot(x, y, z) {
   rightArm = createArm(-1, -1 * distanciaBracoInicial, 25, 3.5/2);
   leftArm = createArm(1, distanciaBracoInicial, 25, 3.5/2);
 
-  head = giveHead(0,31.5,0);
+  head = giveHead(0,31,0);
 
   torso = createTorso(0, 25, 0);
   abdomen = createAbdomen(0, 18, 0);
@@ -401,37 +401,37 @@ function decreaseArm(){
 
 function increaseHeadRotation(){
   if(-head.rotation.x < Math.PI){
-    head.rotation.x -= Math.PI / 30;
+    head.rotation.x -= Math.PI / 32;
   }
 }
 
 function decreaseHeadRotation(){
   if(-head.rotation.x > 0){
-    head.rotation.x += Math.PI / 30;
+    head.rotation.x += Math.PI / 32;
   }
 }
 
 function increaseFeetRotation(){
   if(feet.rotation.x < Math.PI){
-    feet.rotation.x += Math.PI / 16;
+    feet.rotation.x += Math.PI / 32;
   }
 }
 
 function decreaseFeetRotation(){
   if(feet.rotation.x > 0){
-    feet.rotation.x -= Math.PI / 16;
+    feet.rotation.x -= Math.PI / 32;
   }
 }
 
 function increaseWaistRotation(){
   if(fullLeg.rotation.x < Math.PI / 2){
-    fullLeg.rotation.x += Math.PI / 16;
+    fullLeg.rotation.x += Math.PI / 32;
   }
 }
 
 function decreaseWaistRotation(){
   if(fullLeg.rotation.x > 0){
-    fullLeg.rotation.x -= Math.PI / 16;
+    fullLeg.rotation.x -= Math.PI / 32;
   }
 }
 

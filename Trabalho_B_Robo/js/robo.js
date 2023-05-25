@@ -188,9 +188,6 @@ function createArm(leftRight, x, y, z){
   baseTubo.position.set(x + leftRight * (larguraBraco / 2 + raioBaseTubo), y, z - comprimentoAntebraco/2 + larguraBraco / 2);
   saidaTubo.position.set(x + leftRight * (larguraBraco / 2 + raioBaseTubo), y + comprimentoBaseTubo / 2 + comprimentoSaidaTubo / 2, z - comprimentoAntebraco/2 + larguraBraco / 2)
 
- // bracoZInicial = - comprimentoAntebraco/2 + larguraBraco / 2;
- // bracoZCurrent = bracoZInicial;
-
   group = new THREE.Object3D();
   group.add(braco);
   group.add(antebraco);
@@ -266,7 +263,7 @@ function createTrailer(x, y, z){
 
   var reboque, roda1, roda2, roda3, roda4, pecaDeLigacao;
 
-  const altura = 13, largura = 13, comprimento = 65;
+  const altura = 20, largura = 20, comprimento = 55;
 
   reboque = new THREE.Mesh(
       new THREE.CubeGeometry(largura, altura, comprimento),
@@ -615,13 +612,13 @@ function onKeyDown(e) {
       headDecrease = true;
       break;
     case 37: //left
-      trailerLeft = true;
+      trailerRight = true;
       break;
     case 38: //up
       trailerForward = true;
       break;
     case 39: //right
-      trailerRight = true;
+      trailerLeft = true;
       break;
     case 40: //down
       trailerBackward = true;
@@ -680,13 +677,13 @@ function onKeyUp(e){
       armIncrease = false;
       break;
     case 37: //left
-      trailerLeft = false;
+      trailerRight = false;
       break;
     case 38: //up
       trailerForward = false;
       break;
     case 39: //right
-      trailerRight = false;
+      trailerLeft = false;
       break;
     case 40: //down
       trailerBackward = false;
@@ -737,12 +734,6 @@ function init() {
 
 function animate() {
   "use strict";
-
-  /*if (ball.userData.jumping) {
-    ball.userData.step += 0.04;
-    ball.position.y = Math.abs(30 * Math.sin(ball.userData.step));
-    ball.position.z = 13 * Math.cos(ball.userData.step);
-  }*/
 
   if (trailerLeft) trailer.position.x += 0.25;
   if (trailerRight) trailer.position.x -= 0.25;

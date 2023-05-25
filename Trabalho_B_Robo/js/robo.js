@@ -23,7 +23,7 @@ var perspectiveCamera,
 
 var geometry, material, mesh;
 
-var distanciaBracoInicial = 10.5, distanciaBracoCurrent = 10.5, headAngle = 0, feetAngle = 0, waistAngle = 0;
+var distanciaBracoInicial = 10.5, distanciaBracoCurrent = 10.5, headAngle = 0, feetAngle = 0, waistAngle = 0, globalWireframe = true;
 
 let trailerForward = false,
     trailerBackward = false,
@@ -328,8 +328,6 @@ function createRobot(x, y, z) {
 
   fullLeg = new THREE.Object3D();
 
-  
-
   rightArm = createArm(-1, -1 * distanciaBracoInicial, 24.5, 0);
   leftArm = createArm(1, distanciaBracoInicial, 24.5, 0);
 
@@ -349,8 +347,6 @@ function createRobot(x, y, z) {
 
   fullLeg.position.set(0,13.5,0);
 
-  
-
   fullLeg.add(legs);
   fullLeg.add(thighs);
   fullLeg.add(feet);
@@ -363,10 +359,6 @@ function createRobot(x, y, z) {
   truck.add(abdomen);
   truck.add(waist);
   truck.add(fullLeg);
-  
-  //truck.add(thighs);
-  //truck.add(legs);
-  //truck.add(feet);
 
   scene.add(truck);
 
@@ -536,11 +528,54 @@ function onKeyDown(e) {
       activeCamera = perspectiveCamera;
       break;
     case 54: // 6 key
-      scene.traverse(function (node) {
-        if (node instanceof THREE.Mesh) {
-          node.material.wireframe = !node.material.wireframe;
-        }
-      });
+      globalWireframe = !globalWireframe;
+
+      feet.children[0].material.wireframe = globalWireframe;
+      feet.children[1].material.wireframe = globalWireframe;
+
+      legs.children[0].children[0].material.wireframe = globalWireframe;
+      legs.children[0].children[1].material.wireframe = globalWireframe;
+      legs.children[0].children[2].material.wireframe = globalWireframe;
+      legs.children[0].children[3].material.wireframe = globalWireframe;
+      legs.children[1].children[0].material.wireframe = globalWireframe;
+      legs.children[1].children[1].material.wireframe = globalWireframe;
+      legs.children[1].children[2].material.wireframe = globalWireframe;
+      legs.children[1].children[3].material.wireframe = globalWireframe;
+    
+      thighs.children[0].material.wireframe = globalWireframe;
+      thighs.children[1].material.wireframe = globalWireframe;
+      
+      waist.children[0].material.wireframe = globalWireframe;
+      waist.children[1].material.wireframe = globalWireframe;
+      waist.children[2].material.wireframe = globalWireframe;
+
+      abdomen.material.wireframe = globalWireframe;
+
+      torso.material.wireframe = globalWireframe;
+
+      rightArm.children[0].material.wireframe = globalWireframe;
+      rightArm.children[1].material.wireframe = globalWireframe;
+      rightArm.children[2].material.wireframe = globalWireframe;
+      rightArm.children[3].material.wireframe = globalWireframe;
+      
+      leftArm.children[0].material.wireframe = globalWireframe;
+      leftArm.children[1].material.wireframe = globalWireframe;
+      leftArm.children[2].material.wireframe = globalWireframe;
+      leftArm.children[3].material.wireframe = globalWireframe;
+
+      head.children[0].material.wireframe = globalWireframe;
+      head.children[1].material.wireframe = globalWireframe;
+      head.children[2].material.wireframe = globalWireframe;
+      head.children[3].material.wireframe = globalWireframe;
+      head.children[4].material.wireframe = globalWireframe;
+
+      trailer.children[0].material.wireframe = globalWireframe;
+      trailer.children[1].material.wireframe = globalWireframe;
+      trailer.children[2].material.wireframe = globalWireframe;
+      trailer.children[3].material.wireframe = globalWireframe;
+      trailer.children[4].material.wireframe = globalWireframe;
+      trailer.children[5].material.wireframe = globalWireframe;
+
       break;
     case 65: //A
       feetIncrease = true;

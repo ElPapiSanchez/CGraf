@@ -400,53 +400,38 @@ function decreaseArm(){
 }
 
 function increaseHeadRotation(){
-  if(headAngle < 60){
-    head.rotation.x -= Math.PI * ++headAngle * 0.1 / 180;
+  if(-head.rotation.x < Math.PI){
+    head.rotation.x -= Math.PI / 30;
   }
 }
 
 function decreaseHeadRotation(){
-  if(headAngle > 0){
-    head.rotation.x += Math.PI * --headAngle * 0.1 / 180;
-  }
-  if(headAngle === 0){
-    head.rotation.x = 0;
+  if(-head.rotation.x > 0){
+    head.rotation.x += Math.PI / 30;
   }
 }
 
 function increaseFeetRotation(){
-  if(feetAngle < 60){
-    feet.rotation.x += Math.PI * ++feetAngle * 0.1 / 180;
-  }
-  if(feetAngle === 60){
-    feet.rotation.x = Math.PI;
+  if(feet.rotation.x < Math.PI){
+    feet.rotation.x += Math.PI / 16;
   }
 }
 
 function decreaseFeetRotation(){
-  if(feetAngle > 0){
-    feet.rotation.x -= Math.PI * --feetAngle * 0.1 / 180;
-  }
-  if(feetAngle === 0){
-    feet.rotation.x = 0;
+  if(feet.rotation.x > 0){
+    feet.rotation.x -= Math.PI / 16;
   }
 }
 
 function increaseWaistRotation(){
-  if(waistAngle < 41){
-    fullLeg.rotation.x += Math.PI * ++waistAngle * 0.1 / 180;
-  }
-  if(waistAngle === 41){
-    fullLeg.rotation.x = Math.PI / 2;
+  if(fullLeg.rotation.x < Math.PI / 2){
+    fullLeg.rotation.x += Math.PI / 16;
   }
 }
 
 function decreaseWaistRotation(){
-  if(waistAngle > 0){
-    fullLeg.rotation.x -= Math.PI * --waistAngle * 0.1 / 180;
-  }
-  if(waistAngle === 0){
-    fullLeg.rotation.x = 0;
+  if(fullLeg.rotation.x > 0){
+    fullLeg.rotation.x -= Math.PI / 16;
   }
 }
 

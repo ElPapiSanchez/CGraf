@@ -19,6 +19,8 @@ var perspectiveCamera,
     torso,
     waist,
     fullLeg,
+    clock,
+    delta,
     activeCamera;
 
 var geometry, material, mesh;
@@ -27,7 +29,13 @@ var distanciaBracoInicial = 10.5
     , distanciaBracoCurrent = 10.5
     , bracoZCurrent = 0
     , globalWireframe = true
-    , visibleBBC = true;
+    , visibleBBC = true
+    , dockingPort = {x: 0, y: 17.75, z: -7}
+    , BBCdockingPort = {x: 0, y: 30, z: -35.5}
+    , collisionPoint
+    , BBCcollisionPoint
+    , duration = 100
+    , elapsed = 0;
 
 let truckBBC, trailerBBC, truckMax, truckMin, trailerMax, trailerMin;
 
@@ -44,7 +52,7 @@ let trailerForward = false,
     waistIncrease = false,
     waistDecrease = false,
     truckMode = false,
-    notTogether = true,
+    together = false,
     animating = false;
 
 function createThigh(leftRight,x,y,z){
@@ -409,63 +417,63 @@ function createRobot(x, y, z) {
 
 function increaseArm(){
   if(distanciaBracoCurrent < distanciaBracoInicial){
-    distanciaBracoCurrent += 0.25;
-    rightArm.position.x -= 0.25;
-    leftArm.position.x += 0.25;
+    distanciaBracoCurrent += 0.25 * delta * 20;
+    rightArm.position.x -= 0.25 * delta * 20;
+    leftArm.position.x += 0.25 * delta * 20;
   }
-  else if (bracoZCurrent >= -3.5 && bracoZCurrent < 0){
-    bracoZCurrent += 0.25;
-    rightArm.position.z += 0.25;
-    leftArm.position.z += 0.25;
+  else if (bracoZCurrent < 0){
+    bracoZCurrent += 0.25 * delta * 20;
+    rightArm.position.z += 0.25 * delta * 20;
+    leftArm.position.z += 0.25 * delta * 20;
   }
 }
 
 function decreaseArm(){
-  if (bracoZCurrent > -3.5 && bracoZCurrent <= 0){
-    bracoZCurrent -= 0.25;
-    rightArm.position.z -= 0.25;
-    leftArm.position.z -= 0.25;
+  if (bracoZCurrent > -3.5){
+    bracoZCurrent -= 0.25 * delta * 20;
+    rightArm.position.z -= 0.25 * delta * 20;
+    leftArm.position.z -= 0.25 * delta * 20;
   }
   else if(distanciaBracoCurrent > distanciaBracoInicial - 3.75){
-    distanciaBracoCurrent -= 0.25;
-    rightArm.position.x += 0.25;
-    leftArm.position.x -= 0.25;
+    distanciaBracoCurrent -= 0.25 * delta * 20;
+    rightArm.position.x += 0.25 * delta * 20;
+    leftArm.position.x -= 0.25 * delta * 20;
   }
 }
 
 function increaseHeadRotation(){
   if(-head.rotation.x < Math.PI){
-    head.rotation.x -= Math.PI / 32;
+    head.rotation.x -= (Math.PI / 32) * delta * 20;
   }
 }
 
 function decreaseHeadRotation(){
   if(-head.rotation.x > 0){
-    head.rotation.x += Math.PI / 32;
+    head.rotation.x += (Math.PI / 32) * delta * 20;
   }
 }
 
 function increaseFeetRotation(){
   if(feet.rotation.x < Math.PI){
-    feet.rotation.x += Math.PI / 32;
+    feet.rotation.x += (Math.PI / 32) * delta * 20;
   }
 }
 
 function decreaseFeetRotation(){
   if(feet.rotation.x > 0){
-    feet.rotation.x -= Math.PI / 32;
+    feet.rotation.x -= (Math.PI / 32) * delta * 20;
   }
 }
 
 function increaseWaistRotation(){
   if(fullLeg.rotation.x < Math.PI / 2){
-    fullLeg.rotation.x += Math.PI / 32;
+    fullLeg.rotation.x += (Math.PI / 32) * delta * 20;
   }
 }
 
 function decreaseWaistRotation(){
   if(fullLeg.rotation.x > 0){
-    fullLeg.rotation.x -= Math.PI / 32;
+    fullLeg.rotation.x -= (Math.PI / 32) * delta * 20;
   }
 }
 
@@ -475,8 +483,6 @@ function createScene() {
   scene = new THREE.Scene();
 
   scene.background = new THREE.Color(0xd3d3d3);
-
-  scene.add(new THREE.AxisHelper(10));
 
   createRobot(0, 6.5, 0);
   createTrailer(0, 0, -30);
@@ -515,13 +521,13 @@ function createOrthographicCamera(place) {
 
   switch (place) {
     case "front":
-      camera.position.set(0, 0, 100);
+      camera.position.set(0, 0, 200);
       break;
     case "side":
-      camera.position.set(100, 0, 0);
+      camera.position.set(200, 0, 0);
       break;
     case "top":
-      camera.position.set(0, 100, 0);
+      camera.position.set(0, 200, 0);
       break;
     case "default":
       camera.position.set(50, 50, 50);
@@ -767,6 +773,8 @@ function init() {
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
 
+  clock = new THREE.Clock();
+
   createScene();
   perspectiveCamera = createPerspectiveCamera();
   cameraFront = createOrthographicCamera("front");
@@ -785,30 +793,34 @@ function init() {
 
 function animate() {
   "use strict";
+  delta = clock.getDelta();
+
   if(!animating){
+    duration = 100;
+    elapsed = 0;
     if (trailerLeft) {
-      trailer.position.x += 0.25;
-      trailerBBC.position.x += 0.25;
-      trailerMin.x += 0.25;
-      trailerMax.x += 0.25;
+      trailer.position.x += 0.25 * delta * 20;
+      trailerBBC.position.x += 0.25 * delta * 20;
+      trailerMin.x += 0.25 * delta * 20;
+      trailerMax.x += 0.25 * delta * 20;
     }
     if (trailerRight) {
-      trailer.position.x -= 0.25;
-      trailerBBC.position.x -= 0.25;
-      trailerMin.x -= 0.25;
-      trailerMax.x -= 0.25;
+      trailer.position.x -= 0.25 * delta * 20;
+      trailerBBC.position.x -= 0.25 * delta * 20;
+      trailerMin.x -= 0.25 * delta * 20;
+      trailerMax.x -= 0.25 * delta * 20;
     }
     if (trailerForward) {
-      trailer.position.z += 0.25;
-      trailerBBC.position.z += 0.25;
-      trailerMin.z += 0.25;
-      trailerMax.z += 0.25;
+      trailer.position.z += 0.25 * delta * 20;
+      trailerBBC.position.z += 0.25 * delta * 20;
+      trailerMin.z += 0.25 * delta;
+      trailerMax.z += 0.25 * delta * 20;
     }
     if (trailerBackward) {
-      trailer.position.z -= 0.25;
-      trailerBBC.position.z -= 0.25;
-      trailerMin.z -= 0.25;
-      trailerMax.z -= 0.25;
+      trailer.position.z -= 0.25 * delta * 20;
+      trailerBBC.position.z -= 0.25 * delta * 20;
+      trailerMin.z -= 0.25 * delta * 20;
+      trailerMax.z -= 0.25 * delta * 20;
     }
   
     if (armIncrease) increaseArm();
@@ -822,28 +834,47 @@ function animate() {
   
     if (waistIncrease) increaseWaistRotation();
     if (waistDecrease) decreaseWaistRotation();
-  }
 
-  truckMode = (distanciaBracoCurrent <= distanciaBracoInicial - 3.75) &&
-      (-head.rotation.x >= Math.PI) &&
-      (feet.rotation.x >= Math.PI) &&
-      (fullLeg.rotation.x >= Math.PI / 2);
-
-  if(checkCollision() && truckMode){
-    trailer.children[0].material.color.r = 1;
+    truckMode = (distanciaBracoCurrent <= distanciaBracoInicial - 3.75) &&
+        (-head.rotation.x >= Math.PI) &&
+        (feet.rotation.x >= Math.PI) &&
+        (fullLeg.rotation.x >= Math.PI / 2);
+    trailer.children[0].material.color.r = 0.4;
+    trailer.children[0].material.color.g = 0.4;
+    trailer.children[0].material.color.b = 0.4;
+    if(checkCollision() && truckMode && !together){
+      trailer.children[0].material.color.r = 1;
+      trailer.children[0].material.color.g = 1;
+      trailer.children[0].material.color.b = 1;
+      animating = true;
+      collisionPoint = trailer.position;
+      BBCcollisionPoint = trailerBBC.position;
+    }
+    if(together && !checkCollision()){
+      together = false;
+    }
+    if(together && !truckMode){
+      together = false;
+    }
   }
   else{
-    trailer.children[0].material.color.r = 0.4;
+    const t = Math.min(1, elapsed / duration);
+    trailer.position.set(collisionPoint.x + (dockingPort.x - collisionPoint.x) * t
+        , collisionPoint.y + (dockingPort.y - collisionPoint.y) * t
+        , collisionPoint.z + (dockingPort.z - collisionPoint.z) * t);
+    trailerBBC.position.set(BBCcollisionPoint.x + (BBCdockingPort.x - BBCcollisionPoint.x) * t
+        , BBCcollisionPoint.y + (BBCdockingPort.y - BBCcollisionPoint.y) * t
+        , BBCcollisionPoint.z + (BBCdockingPort.z - BBCcollisionPoint.z) * t);
+    if(!(t < 1)){
+      animating = false;
+      together = true;
+      truckMin = positionSubtraction(truckBBC.position, truckBBC.geometry.vertices[6]);
+      truckMax = positionAddition(truckBBC.position, truckBBC.geometry.vertices[0]);
+      trailerMin = positionSubtraction(trailerBBC.position, trailerBBC.geometry.vertices[6]);
+      trailerMax = positionAddition(trailerBBC.position, trailerBBC.geometry.vertices[0]);
+    }
+    elapsed += 0.5;
   }
-      
-
-  /*if (trailerBBC.intersectsBox(truckBBC) && truckMode && notTogether) {
-    notTogether = false;
-    trailer.position.x = 0;
-    trailer.position.z = 0;
-  }
-  if (!trailerBBC.intersectsBox(truckBBC) || !truckMode) notTogether = true;
-*/
   render();
 
   requestAnimationFrame(animate);

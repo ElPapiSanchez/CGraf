@@ -26,7 +26,8 @@ var geometry, material, mesh;
 var distanciaBracoInicial = 10.5
     , distanciaBracoCurrent = 10.5
     , bracoZCurrent = 0
-    , globalWireframe = true;
+    , globalWireframe = true
+    , visibleBBC = true;
 
 let truckBBC, trailerBBC, truckMax, truckMin, trailerMax, trailerMin;
 
@@ -43,7 +44,8 @@ let trailerForward = false,
     waistIncrease = false,
     waistDecrease = false,
     truckMode = false,
-    notTogether = true;
+    notTogether = true,
+    animating = false;
 
 function createThigh(leftRight,x,y,z){
   var thigh;
@@ -262,6 +264,22 @@ function createFeet(x,y,z){
   return group;
 }
 
+function positionSubtraction(pos1, pos2){
+  return {
+    x: pos1.x - Math.abs(pos2.x), 
+    y: pos1.y - Math.abs(pos2.y), 
+    z: pos1.z - Math.abs(pos2.z)
+  };
+}
+
+function positionAddition(pos1, pos2){
+  return {
+    x: pos1.x + Math.abs(pos2.x), 
+    y: pos1.y + Math.abs(pos2.y), 
+    z: pos1.z + Math.abs(pos2.z)
+  };
+}
+
 function createTrailer(x, y, z){
   "use strict";
 
@@ -326,29 +344,11 @@ function createTrailer(x, y, z){
 
   var geometry = new THREE.CubeGeometry(largura, altura + 4.5, comprimento + 3);
   trailerBBC = new THREE.Mesh(geometry,
-      new THREE.MeshBasicMaterial({ color: 0xFFF000, wireframe: true }));
-  trailerBBC.position.set(x, y + 30, z - comprimento/2 - 1);/*
-  let MaxX, MaxY, MaxZ, MinX, MinY, MinZ;
-  for (let i = 0; i < geometry.vertices.length; i++) {
-    if (trailerMax === null  && trailerMin === null){
-      trailerMax = geometry.vertices[i];
-      trailerMin = geometry.vertices[i];
-    }
-    else {
-      MaxX = Math.max(trailerMax.x, geometry.vertices[i].x);
-      MaxY = Math.max(trailerMax.y, geometry.vertices[i].y);
-      MaxZ = Math.max(trailerMax.z, geometry.vertices[i].z);
-      if (MaxX === truckBBC.vertices[i].x && MaxY === truckBBC.vertices[i].y && MaxZ === truckBBC.vertices[i].z)
-        truckMax = truckBBC.vertices[i];
-      MinX = Math.min(truckMin.x, truckBBC.vertices[i].x);
-      MinY = Math.min(truckMin.y, truckBBC.vertices[i].y);
-      MinZ = Math.min(truckMin.z, truckBBC.vertices[i].z);
-      if (MinX === truckBBC.vertices[i].x && MinY === truckBBC.vertices[i].y && MinY === truckBBC.vertices[i].z)
-        truckMin = truckBBC.vertices[i];
-    }
-  }*/
+      new THREE.MeshBasicMaterial({ color: 0xFFF000, wireframe: true, visible: visibleBBC}));
+  trailerBBC.position.set(x, y + 30, z - comprimento/2 - 1);
+  trailerMin = positionSubtraction(trailerBBC.position, trailerBBC.geometry.vertices[6]);
+  trailerMax = positionAddition(trailerBBC.position, trailerBBC.geometry.vertices[0]);
   scene.add(trailerBBC);
-
 }
 
 function createRobot(x, y, z) {
@@ -400,28 +400,10 @@ function createRobot(x, y, z) {
   truck.position.z = z;
 
   truckBBC = new THREE.Mesh(new THREE.CubeGeometry(22, 20, 27),
-      new THREE.MeshBasicMaterial({ color: 0xFFF000, wireframe: true }));
+      new THREE.MeshBasicMaterial({ color: 0xFFF000, wireframe: true, visible: visibleBBC}));
   truckBBC.position.set(x, 27.5, z-9);
-  //truckMin = truckBBC.vertices.length;
-  /*let MaxX, MaxY, MaxZ, MinX, MinY, MinZ;
-  for (let i = 0; i < truckBBC.vertices.length; i++) {
-    if (truckMax === null  && truckMin === null){
-      truckMax = truckBBC.vertices[i];
-      truckMin = truckBBC.vertices[i];
-    }
-    else {
-      MaxX = Math.max(truckMax.x, truckBBC.vertices[i].x);
-      MaxY = Math.max(truckMax.y, truckBBC.vertices[i].y);
-      MaxZ = Math.max(truckMax.z, truckBBC.vertices[i].z);
-      if (MaxX === truckBBC.vertices[i].x && MaxY === truckBBC.vertices[i].y && MaxZ === truckBBC.vertices[i].z)
-        truckMax = truckBBC.vertices[i];
-      MinX = Math.min(truckMin.x, truckBBC.vertices[i].x);
-      MinY = Math.min(truckMin.y, truckBBC.vertices[i].y);
-      MinZ = Math.min(truckMin.z, truckBBC.vertices[i].z);
-      if (MinX === truckBBC.vertices[i].x && MinY === truckBBC.vertices[i].y && MinY === truckBBC.vertices[i].z)
-        truckMin = truckBBC.vertices[i];
-    }
-  }*/
+  truckMin = positionSubtraction(truckBBC.position, truckBBC.geometry.vertices[6]);
+  truckMax = positionAddition(truckBBC.position, truckBBC.geometry.vertices[0]);
   scene.add(truckBBC);
 }
 
@@ -582,6 +564,7 @@ function onKeyDown(e) {
       break;
     case 54: // 6 key
       globalWireframe = !globalWireframe;
+      visibleBBC = !visibleBBC;
 
       feet.children[0].material.wireframe = globalWireframe;
       feet.children[1].material.wireframe = globalWireframe;
@@ -628,6 +611,9 @@ function onKeyDown(e) {
       trailer.children[3].material.wireframe = globalWireframe;
       trailer.children[4].material.wireframe = globalWireframe;
       trailer.children[5].material.wireframe = globalWireframe;
+
+      truckBBC.material.visible = visibleBBC;
+      trailerBBC.material.visible = visibleBBC;
 
       break;
     case 65: //A
@@ -763,6 +749,16 @@ function render() {
   renderer.render(scene, activeCamera);
 }
 
+function checkCollision(){
+  "use strict";
+  return (trailerMax.x >= truckMin.x 
+    && trailerMin.x <= truckMax.x 
+    && trailerMax.y >= truckMin.y
+    && trailerMin.y <= truckMax.y
+    && trailerMax.z >= truckMin.z
+    && trailerMin.z <= truckMax.z);
+}
+
 function init() {
   "use strict";
   renderer = new THREE.WebGLRenderer({
@@ -789,52 +785,65 @@ function init() {
 
 function animate() {
   "use strict";
-
-  if (trailerLeft) {
-    trailer.position.x += 0.25;
-    trailerBBC.position.x += 0.25;
+  if(!animating){
+    if (trailerLeft) {
+      trailer.position.x += 0.25;
+      trailerBBC.position.x += 0.25;
+      trailerMin.x += 0.25;
+      trailerMax.x += 0.25;
+    }
+    if (trailerRight) {
+      trailer.position.x -= 0.25;
+      trailerBBC.position.x -= 0.25;
+      trailerMin.x -= 0.25;
+      trailerMax.x -= 0.25;
+    }
+    if (trailerForward) {
+      trailer.position.z += 0.25;
+      trailerBBC.position.z += 0.25;
+      trailerMin.z += 0.25;
+      trailerMax.z += 0.25;
+    }
+    if (trailerBackward) {
+      trailer.position.z -= 0.25;
+      trailerBBC.position.z -= 0.25;
+      trailerMin.z -= 0.25;
+      trailerMax.z -= 0.25;
+    }
+  
+    if (armIncrease) increaseArm();
+    if (armDecrease) decreaseArm();
+  
+    if (headIncrease) increaseHeadRotation();
+    if (headDecrease) decreaseHeadRotation();
+  
+    if (feetIncrease) increaseFeetRotation();
+    if (feetDecrease) decreaseFeetRotation();
+  
+    if (waistIncrease) increaseWaistRotation();
+    if (waistDecrease) decreaseWaistRotation();
   }
-  if (trailerRight) {
-    trailer.position.x -= 0.25;
-    trailerBBC.position.x -= 0.25;
-  }
-  if (trailerForward) {
-    trailer.position.z += 0.25;
-    trailerBBC.position.z += 0.25;
-  }
-  if (trailerBackward) {
-    trailer.position.z -= 0.25;
-    trailerBBC.position.z -= 0.25;
-  }
-
-  if (armIncrease) increaseArm();
-  if (armDecrease) decreaseArm();
-
-  if (headIncrease) increaseHeadRotation();
-  if (headDecrease) decreaseHeadRotation();
-
-  if (feetIncrease) increaseFeetRotation();
-  if (feetDecrease) decreaseFeetRotation();
-
-  if (waistIncrease) increaseWaistRotation();
-  if (waistDecrease) decreaseWaistRotation();
-/*
-  trailerBBC.setFromObject(trailer);
-  truckBBC.setFromObject(truck);
 
   truckMode = (distanciaBracoCurrent <= distanciaBracoInicial - 3.75) &&
       (-head.rotation.x >= Math.PI) &&
       (feet.rotation.x >= Math.PI) &&
       (fullLeg.rotation.x >= Math.PI / 2);
 
-  if (trailerBBC.intersectsBox(truckBBC) && truckMode && notTogether) {
+  if(checkCollision() && truckMode){
+    trailer.children[0].material.color.r = 1;
+  }
+  else{
+    trailer.children[0].material.color.r = 0.4;
+  }
+      
+
+  /*if (trailerBBC.intersectsBox(truckBBC) && truckMode && notTogether) {
     notTogether = false;
     trailer.position.x = 0;
     trailer.position.z = 0;
   }
   if (!trailerBBC.intersectsBox(truckBBC) || !truckMode) notTogether = true;
 */
-
   render();
 
   requestAnimationFrame(animate);

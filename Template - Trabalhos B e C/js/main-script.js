@@ -59,7 +59,10 @@ function createTerrain() {
   
         var geometry = new THREE.PlaneGeometry(1100,1100,100,100);
         
-        var context = document.createElement('canvas').getContext('2d');  
+        var canvas = document.createElement('canvas');
+        canvas.height = 1081;
+        canvas.width = 1081;
+        var context = canvas.getContext('2d'); 
         context.drawImage(texture.image, 0, 0, texture.image.width, texture.image.height, 0, 0, texture.image.width, texture.image.height);
         var data = context.getImageData(0, 0, texture.image.width, texture.image.height).data;
         var textureWidth = texture.image.width;

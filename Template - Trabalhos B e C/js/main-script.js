@@ -10,6 +10,7 @@ var perspectiveCamera,
     activeCamera,
     OVNI,
     spotLightOvni,
+    moonLight,
     delta,
     clock,
     controls;
@@ -20,7 +21,14 @@ let ovniForward = false,
   ovniBackward = false,
   ovniLeft = false,
   ovniRight = false,
-  ovniPointLightArray = [];
+  ovniPointLightArray = [],
+  moonLightOn = true;
+
+function toggleMoonLight() {
+    if(moonLightOn) moonLight.intensity = 0;
+    else moonLight.intensity = 0.5;
+    moonLightOn = !moonLightOn;
+}
 
 function turnOvniLightsOn() {
     spotLightOvni.intensity = 6;
@@ -32,7 +40,6 @@ function turnOvniLightsOn() {
 function turnOvniLightsOff() {
     spotLightOvni.intensity = 0;
     for (let i = 0; i < 8; i++) {
-        console.log("olalala");
         ovniPointLightArray[i].intensity = 0;
     }
 }
@@ -40,9 +47,8 @@ function turnOvniLightsOff() {
 function createGround() {
   var ground = new THREE.Mesh(
     new THREE.PlaneGeometry( 1000, 1000, 100, 100), 
-    new THREE.MeshPhongMaterial({ color: 0x003300, wireframe: false }))
+    new THREE.MeshPhongMaterial({ color: 0x006600, wireframe: false }))
   ground.rotation.x = - (Math.PI / 2);
-
   scene.add(ground);
 }
 
@@ -77,7 +83,7 @@ function createOvni() {
         -2,
         radius * Math.sin(angle)
       );
-      const pointLight = new THREE.PointLight(0xffff00, 2, 50);
+      const pointLight = new THREE.PointLight(0xffffff, 2, 50);
       smallSphere.add(pointLight);
       pointLight.position.y -= 1;
       ovniPointLightArray.push(pointLight);
@@ -91,12 +97,12 @@ function createOvni() {
     cylinder.position.y = -2.5;
     OVNI.add(cylinder);
   
-    //add spotlight
+    // Adicionar spotlight
     spotTarget = new THREE.Object3D();
     spotTarget.position.set(0, -20, 0);
     OVNI.add(spotTarget);
 
-    spotLightOvni = new THREE.SpotLight(0xffff00, 6, 125, Math.PI/3);
+    spotLightOvni = new THREE.SpotLight(0xffffff, 3, 125, Math.PI/5);
     spotLightOvni.position.set(cylinder.position.x, cylinder.position.y - 1, cylinder.position.z);
     OVNI.add(spotLightOvni)
 
@@ -104,7 +110,21 @@ function createOvni() {
         
     OVNI.position.y = 75;
     scene.add(OVNI);
-  }
+}
+
+function createMoon() {
+    var moon = new THREE.Mesh(
+        new THREE.SphereGeometry(10, 32, 16),
+        new THREE.MeshStandardMaterial({color: 0xF8FF81, emissive: 0xF8FF81, emissiveIntensity: 1, roughness: 0, metalness: 1})
+    );
+
+    moonLight = new THREE.DirectionalLight(0xF8FF81, 0.5);
+    moonLight.position.set(170, 160, 110);
+    scene.add(moonLight);
+
+    moon.position.set(170, 160, 110);
+    scene.add(moon);
+}
 
 function createSobreiroDescorticado(x, y, z, height, alpha, rotation) {
 
@@ -253,29 +273,41 @@ function createDoorAndWindows(x,y,z){
 
 }
 
+function createAmbientLight() {
+    "use strict";
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+    scene.add(ambientLight);
+}
+
 
 function createScene() {
     "use strict";
 
     scene = new THREE.Scene();
 
+    createAmbientLight();
+
     createGround();
+
+    createMoon();
 
     createOvni();
 
-    scene.background = new THREE.Color(0xd3d3d3);
-
-    for (let i = 0; i < 5; i++) {
-        let x = 25 - Math.random() * 50; // Posição X aleatória
-        let y = 0; // Posição Y no terreno
-        let z = 25 - Math.random() * 50; // Posição Z aleatória
-        const height = 20; // Altura
-        const alpha = Math.random() * (1-0.8) + 0.8;
-        const rotation = Math.random() * Math.PI * 2; // Rotação aleatória
-
-        const sobreiro = createSobreiroDescorticado(x, y, z, height, alpha, rotation);
-        scene.add(sobreiro);
-    }
+    scene.background = new THREE.Color(0x000046);
+    
+    const sobreiro1 = createSobreiroDescorticado(50, 0, 0, 20, 1, Math.PI/2);
+    scene.add(sobreiro1);
+    const sobreiro2 = createSobreiroDescorticado(-50, 0, 0, 22, 1.3, Math.PI);
+    scene.add(sobreiro2);
+    const sobreiro3 = createSobreiroDescorticado(0, 0, -80, 21, 1.2, 3*Math.PI/4);
+    scene.add(sobreiro3);
+    const sobreiro4 = createSobreiroDescorticado(0, 0, 50, 20, 1.4, 5*Math.PI/6);
+    scene.add(sobreiro4);
+    const sobreiro5 = createSobreiroDescorticado(-50, 0, 50, 23, 1.5, Math.PI);
+    scene.add(sobreiro5);
+    const sobreiro6 = createSobreiroDescorticado(50, 0, -80, 21, 1.2, Math.PI/4);
+    scene.add(sobreiro6);
+    
     createHouse(10, 1, 10);
 
     createRoof(10, 1, 10);
@@ -291,9 +323,9 @@ function createPerspectiveCamera() {
         1,
         1000
     );
-    perspectiveCamera.position.x = 50;
-    perspectiveCamera.position.y = 50;
-    perspectiveCamera.position.z = 50;
+    perspectiveCamera.position.x = 130;
+    perspectiveCamera.position.y = 100;
+    perspectiveCamera.position.z = 130;
     perspectiveCamera.lookAt(scene.position);
 
     return perspectiveCamera;
@@ -373,6 +405,12 @@ function onKeyDown(e) {
         case 40: //down
             ovniBackward = true;
             break;
+        case 68: //D
+            toggleMoonLight();
+            break;
+        case 100: //d
+            toggleMoonLight();
+            break;
         case 80: //P
             turnOvniLightsOn();
             break;
@@ -447,7 +485,7 @@ function animate() {
 
     delta = clock.getDelta();
 
-    OVNI.rotation.y += 0.05 * delta * 100;
+    OVNI.rotation.y += 0.01 * delta * 100;
 
     if (ovniLeft) {
         OVNI.position.x += 0.25 * delta * 100;

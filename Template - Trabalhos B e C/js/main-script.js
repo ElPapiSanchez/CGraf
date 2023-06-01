@@ -19,7 +19,23 @@ var geometry, material, mesh;
 let ovniForward = false,
   ovniBackward = false,
   ovniLeft = false,
-  ovniRight = false;
+  ovniRight = false,
+  ovniPointLightArray = [];
+
+function turnOvniLightsOn() {
+    spotLightOvni.intensity = 6;
+    for (let i = 0; i < 8; i++) {
+        ovniPointLightArray[i].intensity = 2;
+    }
+}
+
+function turnOvniLightsOff() {
+    spotLightOvni.intensity = 0;
+    for (let i = 0; i < 8; i++) {
+        console.log("olalala");
+        ovniPointLightArray[i].intensity = 0;
+    }
+}
 
 function createGround() {
   var ground = new THREE.Mesh(
@@ -64,6 +80,7 @@ function createOvni() {
       const pointLight = new THREE.PointLight(0xffff00, 2, 50);
       smallSphere.add(pointLight);
       pointLight.position.y -= 1;
+      ovniPointLightArray.push(pointLight);
       OVNI.add(smallSphere);
     }
     // Cilindro achatado no centro da parte de baixo da nave
@@ -273,16 +290,16 @@ function onKeyDown(e) {
             ovniBackward = true;
             break;
         case 80: //P
-            spotLightOvni.intensity = 1;
+            turnOvniLightsOn();
             break;
         case 112: //p
-            spotLightOvni.intensity = 1;
+            turnOvniLightsOn();
             break;
         case 83: //S
-            spotLightOvni.intensity = 0;
+            turnOvniLightsOff();
             break;
         case 115: //s
-            spotLightOvni.intensity = 0;
+            turnOvniLightsOff();
             break;
     }
 }

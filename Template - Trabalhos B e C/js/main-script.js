@@ -8,74 +8,74 @@ var perspectiveCamera,
     cameraTop,
     ortographicCamera,
     activeCamera,
-    clock;
+    clock,
+    controls;
 
 var geometry, material, mesh;
 
 function createSobreiroDescorticado(x, y, z, height, rotation) {
-    const mainTrunk = new THREE.Object3D();
-    const secTrunk = new THREE.Object3D();
-    const fullTrunk = new THREE.Object3D();
-    const trunkHeight = height / 3.5;
-    const secSmallTrunkHeight = height / 2;
-    const secTrunkHeight = trunkHeight;
 
-    // Criação do tronco
-    const trunkGeometry = new THREE.CylinderGeometry(1, 1, trunkHeight, 32);
-    const secTrunkGeometry = new THREE.CylinderGeometry(1, 1, secTrunkHeight, 32);
-    const secSmallTrunkGeometry = new THREE.CylinderGeometry(0.8, 0.8, secSmallTrunkHeight, 32);
-    const smallTrunkGeometry = new THREE.CylinderGeometry(0.8, 0.8, height, 32);
-    const trunkMaterial = new THREE.MeshBasicMaterial({ color: 0x8B4513 });
-    const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
-    const smallTrunk = new THREE.Mesh(smallTrunkGeometry, trunkMaterial);
+    var trunks = new THREE.Object3D();
+    var mainTrunk = new THREE.Object3D();
+    var secTrunk = new THREE.Object3D();
+    var tree = new THREE.Object3D();
+    var mainLeafs = new THREE.Object3D();
+    var secLeafs = new THREE.Object3D();
+    var wearHeight =  height / 5;
+    var nakedHeight = height * 4 / 5;
+    var nakedMaterial = new THREE.MeshBasicMaterial({ color : 0x795C34 });
+    var wearMaterial = new THREE.MeshBasicMaterial({ color : 0x3F301D });
+    var treeMaterial = new THREE.MeshBasicMaterial({ color : 0x5C9A16 });
 
-    smallTrunk.position.set(x, y , z);
-    trunk.position.set(x, y + height / 2 + trunkHeight / 2, z);
-    mainTrunk.add(trunk);
-    mainTrunk.add(smallTrunk);
+    var mainTrunkWear = new THREE.Mesh(
+        new THREE.CylinderGeometry(2, 2, wearHeight, 32),
+        wearMaterial);
+    var mainTrunkNaked = new THREE.Mesh(
+        new THREE.CylinderGeometry(1.8, 1.8, nakedHeight, 32),
+        nakedMaterial);
 
-    const secondaryTrunk = new THREE.Mesh(secTrunkGeometry, trunkMaterial);
-    const secondarySmallTrunk = new THREE.Mesh(secSmallTrunkGeometry, trunkMaterial);
+    var secTrunkWear = new THREE.Mesh(
+        new THREE.CylinderGeometry(1.8, 1.8, wearHeight, 32),
+        wearMaterial);
+    var secTrunkNaked = new THREE.Mesh(
+        new THREE.CylinderGeometry(1.5, 1.5, nakedHeight / 1.5, 32),
+        nakedMaterial);
 
-    secondarySmallTrunk.position.set(x, y + 4, z);
-    secondaryTrunk.position.set( x, 4 + secSmallTrunkHeight / 2 + secTrunkHeight / 2, z);
-    trunk.rotation.y = rotation;
-    secTrunk.add(secondaryTrunk);
-    secTrunk.add(secondarySmallTrunk);
-    secTrunk.rotation.x = -Math.PI/3;
+    var mainLeafMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(1, 64, 64).scale(8, 7, 12),
+        treeMaterial);
+    var secLeafMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(1, 64, 64).scale(8, 7, 12),
+        treeMaterial);
 
-    fullTrunk.add(mainTrunk);
-    fullTrunk.add(secTrunk);
-    //fullTrunk.rotation.x = Math.PI/6;
+    mainTrunkWear.position.set(0, nakedHeight / 2, 0);
+    mainTrunk.add(mainTrunkWear);
+    mainTrunk.add(mainTrunkNaked);
+    mainTrunk.position.set(0,nakedHeight/2, 0);
 
+    secTrunkWear.position.set(0, nakedHeight / 1.5 / 2, 0);
+    secTrunk.add(secTrunkWear);
+    secTrunk.add(secTrunkNaked);
+    secTrunk.position.set(0, nakedHeight / 2 , 4);
+    secTrunk.rotation.x = Math.PI / 3;
 
-    // Criação do ramo secundário
-    /*
-    const branchGeometry = new THREE.CylinderGeometry(0.5, 0.5, height / 2, 32);
-    const branchMaterial = new THREE.MeshBasicMaterial({ color: 0x8B4513 });
-    const branch = new THREE.Mesh(branchGeometry, branchMaterial);
-    branch.position.set(x, y + height / 2, z);
-    branch.rotation.y = rotation + Math.PI / 4; // Inclinação oposta ao tronco
-    group.add(branch);*/
+    secLeafMesh.rotation.x = Math.PI/20
+    secLeafMesh.position.set(0, height - 2, 4);
+    secLeafs.add(secLeafMesh);
+    mainLeafMesh.rotation.x = -Math.PI/18
+    mainLeafMesh.position.set(0, height + 1, -8);
+    mainLeafs.add(mainLeafMesh);
 
-    // Criação da copa
-    /*
-    const numEllipsoids = Math.floor(Math.random() * 3) + 1; // Número aleatório de elipsóides
-    const crownHeight = height * 0.8; // Altura da copa é proporcional à altura do tronco
-    const crownColor = new THREE.Color(0x006400); // Verde-escura
-    const crownStep = crownHeight / numEllipsoids;
-
-    for (let i = 0; i < numEllipsoids; i++) {
-        const radiusX = Math.random() * 2 + 2; // Raio aleatório em X
-
-        const crownGeometry = new THREE.SphereGeometry(radiusX, 32, 32);
-        const crownMaterial = new THREE.MeshBasicMaterial({ color: crownColor });
-        const crown = new THREE.Mesh(crownGeometry, crownMaterial);
-        crown.position.set(x, y + height + crownStep * i, z);
-        group.add(crown);
-    }*/
-
-    return fullTrunk;
+    trunks.add(secTrunk);
+    trunks.add(mainTrunk);
+    trunks.rotation.x = -Math.PI / 9;
+    trunks.position.set(0,-0.5,0);
+    tree.add(trunks);
+    tree.add(mainLeafs);
+    tree.add(secLeafs);
+    tree.rotation.y = rotation;
+    tree.position.set(x, y, z);
+    return tree;
 }
 
 
@@ -86,11 +86,11 @@ function createScene() {
 
     scene.background = new THREE.Color(0xd3d3d3);
 
-    for (let i = 0; i < 1; i++) {
-        const x = Math.random() * 10 - 5; // Posição X aleatória
+    for (let i = 0; i < 5; i++) {
+        const x = 100 - Math.random() * 200; // Posição X aleatória
         const y = 0; // Posição Y no terreno
-        const z = Math.random() * 10 - 5; // Posição Z aleatória
-        const height = Math.random() * 5 + 5; // Altura aleatória
+        const z = 100 - Math.random() * 200; // Posição Z aleatória
+        const height = 20 + 5 * Math.random(); // Altura aleatória
         const rotation = Math.random() * Math.PI * 2; // Rotação aleatória
 
         const sobreiro = createSobreiroDescorticado(x, y, z, height, rotation);
@@ -215,8 +215,9 @@ function init() {
     cameraSide = createOrthographicCamera("side");
     cameraTop = createOrthographicCamera("top");
     ortographicCamera = createOrthographicCamera("default");
-
     activeCamera = perspectiveCamera;
+    controls = new THREE.OrbitControls(activeCamera, renderer.domElement);
+
 
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup", onKeyUp);

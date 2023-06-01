@@ -8,10 +8,76 @@ var perspectiveCamera,
     cameraTop,
     ortographicCamera,
     activeCamera,
+    OVNI,
+    spotLightOvni,
+    delta,
     clock,
     controls;
 
 var geometry, material, mesh;
+
+let ovniForward = false,
+  ovniBackward = false,
+  ovniLeft = false,
+  ovniRight = false;
+
+
+  function createOvni() {
+
+    OVNI = new THREE.Object3D();
+    // Esfera achatada para o corpo da nave
+    const body = new THREE.Mesh(
+      new THREE.SphereGeometry(1, 64, 64).scale(15, 3, 15),
+      new THREE.MeshPhongMaterial({ color: 0x006600 })
+    );
+    OVNI.add(body);
+  
+    // Calote esférica para o cockpit
+    const cockpit = new THREE.Mesh(
+      new THREE.SphereGeometry(7, 32, 32, 0, 2 * Math.PI, 0, Math.PI / 2),
+      new THREE.MeshPhongMaterial({ color: 0xaaaaff })
+    );
+    cockpit.position.y = 1; // Posicionando o cockpit acima do corpo da nave
+    OVNI.add(cockpit);
+  
+    // Esferas no fundo da nave
+    for (let i = 0; i < 8; i++) {
+      const smallSphere = new THREE.Mesh(
+        new THREE.SphereGeometry(1.5, 16, 16),
+        new THREE.MeshPhongMaterial({ color: 0xcccc00 })
+      );
+      const angle = (i / 8) * Math.PI * 2; // Distribuir as esferas radialmente
+      const radius = 12; // Distância do centro da nave
+      smallSphere.position.set(
+        radius * Math.cos(angle),
+        -2,
+        radius * Math.sin(angle)
+      );
+      const pointLight = new THREE.PointLight(0xffff00, 2, 50);
+      smallSphere.add(pointLight);
+      pointLight.position.y -= 1;
+      OVNI.add(smallSphere);
+    }
+    // Cilindro achatado no centro da parte de baixo da nave
+    const cylinder = new THREE.Mesh(
+      new THREE.CylinderGeometry(3.5, 3.5, 2, 64),
+      new THREE.MeshPhongMaterial({ color: 0xcccc00 })
+    );
+    cylinder.position.y = -2.5;
+    OVNI.add(cylinder);
+  
+    //add spotlight
+    spotTarget = new THREE.Object3D();
+    spotTarget.position.set(0, -20, 0);
+    OVNI.add(spotTarget);
+    spotLightOvni = new THREE.SpotLight(0xffff00, 40, 1000);
+    cylinder.add(spotLightOvni);
+    spotLightOvni.position.set(cylinder.position);
+    spotLightOvni.target = spotTarget;
+        
+    OVNI.position.y = 50;
+    scene.add(OVNI);
+  }
 
 function createSobreiroDescorticado(x, y, z, height, rotation) {
 
@@ -23,9 +89,9 @@ function createSobreiroDescorticado(x, y, z, height, rotation) {
     var secLeafs = new THREE.Object3D();
     var wearHeight =  height / 5;
     var nakedHeight = height * 4 / 5;
-    var nakedMaterial = new THREE.MeshBasicMaterial({ color : 0x795C34 });
-    var wearMaterial = new THREE.MeshBasicMaterial({ color : 0x3F301D });
-    var treeMaterial = new THREE.MeshBasicMaterial({ color : 0x5C9A16 });
+    var nakedMaterial = new THREE.MeshPhongMaterial({ color : 0x795C34 });
+    var wearMaterial = new THREE.MeshPhongMaterial({ color : 0x3F301D });
+    var treeMaterial = new THREE.MeshPhongMaterial({ color : 0x5C9A16 });
 
     var mainTrunkWear = new THREE.Mesh(
         new THREE.CylinderGeometry(2, 2, wearHeight, 32),
@@ -83,6 +149,8 @@ function createScene() {
     "use strict";
 
     scene = new THREE.Scene();
+
+    createOvni();
 
     scene.background = new THREE.Color(0xd3d3d3);
 
@@ -178,14 +246,49 @@ function onKeyDown(e) {
         case 53: // 5 key
             activeCamera = perspectiveCamera;
             break;
-
+        case 37: //left
+            ovniRight = true;
+            break;
+        case 38: //up
+            ovniForward = true;
+            break;
+        case 39: //right
+            ovniLeft = true;
+            break;
+        case 40: //down
+            ovniBackward = true;
+            break;
+        case 80: //P
+            spotLightOvni.intensity = 1;
+            break;
+        case 112: //p
+            spotLightOvni.intensity = 1;
+            break;
+        case 83: //S
+            spotLightOvni.intensity = 0;
+            break;
+        case 115: //s
+            spotLightOvni.intensity = 0;
+            break;
     }
 }
 
-function onKeyUp(e){
-    switch (e.keyCode){
+function onKeyUp(e) {
+    switch (e.keyCode) {
+      case 37: //left
+        ovniRight = false;
+        break;
+      case 38: //up
+        ovniForward = false;
+        break;
+      case 39: //right
+        ovniLeft = false;
+        break;
+      case 40: //down
+        ovniBackward = false;
+        break;
     }
-}
+  }
 
 function render() {
     "use strict";
@@ -226,6 +329,23 @@ function init() {
 
 function animate() {
     "use strict"
+
+    delta = clock.getDelta();
+
+    OVNI.rotation.y += 0.04;
+
+    if (ovniLeft) {
+        OVNI.position.x += 0.25 * delta * 100;
+    }
+    if (ovniRight) {
+        OVNI.position.x -= 0.25 * delta * 100;
+    }
+    if (ovniForward) {
+        OVNI.position.z -= 0.25 * delta * 100;
+    }
+    if (ovniBackward) {
+        OVNI.position.z += 0.25 * delta * 100;
+    }
 
     render();
 

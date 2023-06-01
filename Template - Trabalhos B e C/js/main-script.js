@@ -447,7 +447,7 @@ function animate() {
 
     delta = clock.getDelta();
 
-    OVNI.rotation.y += 0.04;
+    OVNI.rotation.y += 0.05 * delta * 100;
 
     if (ovniLeft) {
         OVNI.position.x += 0.25 * delta * 100;

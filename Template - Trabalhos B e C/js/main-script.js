@@ -22,7 +22,9 @@ let ovniForward = false,
   ovniLeft = false,
   ovniRight = false,
   ovniPointLightArray = [],
-  moonLightOn = true;
+  moonLightOn = true,
+  ovniSpotLightOn = true,
+  ovniPointLightsOn = true;
 
 function toggleMoonLight() {
     if(moonLightOn) moonLight.intensity = 0;
@@ -30,26 +32,53 @@ function toggleMoonLight() {
     moonLightOn = !moonLightOn;
 }
 
-function turnOvniLightsOn() {
-    spotLightOvni.intensity = 6;
-    for (let i = 0; i < 8; i++) {
-        ovniPointLightArray[i].intensity = 2;
-    }
+function toggleOvniSpotLight() {
+    if(ovniSpotLightOn) spotLightOvni.intensity = 0;
+    else spotLightOvni.intensity = 6;
+    ovniSpotLightOn = !ovniSpotLightOn;
 }
 
-function turnOvniLightsOff() {
-    spotLightOvni.intensity = 0;
-    for (let i = 0; i < 8; i++) {
-        ovniPointLightArray[i].intensity = 0;
+function toggleOvniPointLights() {
+    if(ovniPointLightsOn) {
+        for (let i = 0; i < 8; i++) {
+            ovniPointLightArray[i].intensity = 0;
+        }
     }
+    else {
+        for (let i = 0; i < 8; i++) {
+            ovniPointLightArray[i].intensity = 2;
+        }
+    }
+    ovniPointLightsOn = !ovniPointLightsOn;
 }
 
-function createGround() {
-  var ground = new THREE.Mesh(
-    new THREE.PlaneGeometry( 1000, 1000, 100, 100), 
-    new THREE.MeshPhongMaterial({ color: 0x006600, wireframe: false }))
-  ground.rotation.x = - (Math.PI / 2);
-  scene.add(ground);
+function createTerrain() {
+
+    var loader = new THREE.TextureLoader();
+    loader.load('https://web.tecnico.ulisboa.pt/~ist146643/cg/dagoba/map.png', function(texture) {
+  
+        var geometry = new THREE.PlaneGeometry(1100,1100,100,100);
+        
+        var context = document.createElement('canvas').getContext('2d');  
+        context.drawImage(texture.image, 0, 0, texture.image.width, texture.image.height, 0, 0, texture.image.width, texture.image.height);
+        var data = context.getImageData(0, 0, texture.image.width, texture.image.height).data;
+        var textureWidth = texture.image.width;
+        var textureHeight = texture.image.height;
+    
+        for (var i = 0; i < geometry.getAttribute('position').count; i++) {
+            var v = geometry.getAttribute('uv').array[i*2+1];
+            var u = geometry.getAttribute('uv').array[i*2];
+            let row = Math.min(Math.floor(textureHeight*v), textureHeight-1)*4;
+            let col = Math.min(Math.floor(textureWidth*u), textureWidth-1)*4;
+            var z = data[row*textureWidth+col+1]/255.0*255-55;
+            geometry.getAttribute('position').array[i*3+2] = z;
+        }
+    
+        var mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({ color: 0x00bb00, map: texture}));
+        mesh.rotation.x = -Math.PI/2;
+        mesh.position.y += 10;
+        scene.add(mesh);
+    });
 }
 
 function createOvni() {
@@ -287,25 +316,25 @@ function createScene() {
 
     createAmbientLight();
 
-    createGround();
+    createTerrain();
 
     createMoon();
 
     createOvni();
 
-    scene.background = new THREE.Color(0x000046);
+    scene.background = new THREE.Color(0x000045);
     
-    const sobreiro1 = createSobreiroDescorticado(50, 0, 0, 20, 1, Math.PI/2);
+    const sobreiro1 = createSobreiroDescorticado(50, -6, 0, 20, 1.25, 0);
     scene.add(sobreiro1);
     const sobreiro2 = createSobreiroDescorticado(-50, 0, 0, 22, 1.3, Math.PI);
     scene.add(sobreiro2);
-    const sobreiro3 = createSobreiroDescorticado(0, 0, -80, 21, 1.2, 3*Math.PI/4);
+    const sobreiro3 = createSobreiroDescorticado(0, -10.25, -80, 21, 1.45, 3*Math.PI/4);
     scene.add(sobreiro3);
     const sobreiro4 = createSobreiroDescorticado(0, 0, 50, 20, 1.4, 5*Math.PI/6);
     scene.add(sobreiro4);
     const sobreiro5 = createSobreiroDescorticado(-50, 0, 50, 23, 1.5, Math.PI);
     scene.add(sobreiro5);
-    const sobreiro6 = createSobreiroDescorticado(50, 0, -80, 21, 1.2, Math.PI/4);
+    const sobreiro6 = createSobreiroDescorticado(50, -9, -80, 21, 1.2, Math.PI/4);
     scene.add(sobreiro6);
     
     createHouse(10, 1, 10);
@@ -412,16 +441,16 @@ function onKeyDown(e) {
             toggleMoonLight();
             break;
         case 80: //P
-            turnOvniLightsOn();
+            toggleOvniPointLights();
             break;
         case 112: //p
-            turnOvniLightsOn();
+            toggleOvniPointLights();
             break;
         case 83: //S
-            turnOvniLightsOff();
+            toggleOvniSpotLight();
             break;
         case 115: //s
-            turnOvniLightsOff();
+            toggleOvniSpotLight();
             break;
     }
 }
@@ -464,8 +493,6 @@ function init() {
     clock = new THREE.Clock();
 
     createScene();
-    const axesHelper = new THREE.AxesHelper( 5 );
-    scene.add( axesHelper );
     perspectiveCamera = createPerspectiveCamera();
     cameraFront = createOrthographicCamera("front");
     cameraSide = createOrthographicCamera("side");
@@ -485,19 +512,19 @@ function animate() {
 
     delta = clock.getDelta();
 
-    OVNI.rotation.y += 0.01 * delta * 100;
+    OVNI.rotation.y += 0.02 * delta * 100;
 
     if (ovniLeft) {
-        OVNI.position.x += 0.25 * delta * 100;
+        OVNI.position.x += 0.4 * delta * 100;
     }
     if (ovniRight) {
-        OVNI.position.x -= 0.25 * delta * 100;
+        OVNI.position.x -= 0.4 * delta * 100;
     }
     if (ovniForward) {
-        OVNI.position.z -= 0.25 * delta * 100;
+        OVNI.position.z -= 0.4 * delta * 100;
     }
     if (ovniBackward) {
-        OVNI.position.z += 0.25 * delta * 100;
+        OVNI.position.z += 0.4 * delta * 100;
     }
 
     render();

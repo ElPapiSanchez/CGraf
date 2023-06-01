@@ -14,7 +14,7 @@ var perspectiveCamera,
     clock,
     controls;
 
-var geometry, material, mesh;
+var geometry, material, mesh, globalWireframe = false;
 
 let ovniForward = false,
   ovniBackward = false,
@@ -172,6 +172,87 @@ function createSobreiroDescorticado(x, y, z, height, alpha, rotation) {
     return tree;
 }
 
+function createHouse(x, y, z){
+    const vertices = new Float32Array([
+        0, 0, 0,
+        0, 1, 0,
+        1, 0, 0,
+        1, 1, 0,
+        0, 0, 1,
+        0, 1, 1,
+        1, 0, 1,
+        1, 1, 1
+    ]);
+
+    const indices = [
+        0, 1, 2,
+        1, 3, 2,
+        0, 5, 1,
+        0, 4, 5,
+        4, 6, 5,
+        5, 6, 7,
+        2, 7, 6,
+        2, 3, 7
+    ];
+
+    geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+    geometry.setIndex(indices);
+
+    const house = new THREE.Object3D();
+
+    const mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: 0xff0000, wireframe: globalWireframe}));
+
+    mesh.scale.set(15,10,10);
+
+    mesh.position.set(x, y, z);
+
+    house.add(mesh);
+
+    scene.add(house);
+}
+
+function createRoof(x,y,z){
+    const vertices = new Float32Array([
+        0, 1, 0,
+        0, 1, 1,
+        0, 1.5, 0.5,
+
+        1, 1, 0,
+        1, 1, 1,
+        1, 1.5, 0.5
+    ]);
+
+    const indices = [
+        0, 1, 2,
+        0, 2, 3,
+        2, 5, 3,
+        1, 4, 2,
+        2, 4, 5,
+        3, 5, 4,
+    ];
+
+    geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+    geometry.setIndex(indices);
+
+    const roof = new THREE.Object3D();
+
+    const mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: 0xff0000, wireframe: globalWireframe}));
+
+    mesh.scale.set(15,10,10);
+
+    mesh.position.set(x, y, z);
+
+    roof.add(mesh);
+
+    scene.add(roof);
+}
+
+function createDoorAndWindows(x,y,z){
+
+}
+
 
 function createScene() {
     "use strict";
@@ -195,6 +276,9 @@ function createScene() {
         const sobreiro = createSobreiroDescorticado(x, y, z, height, alpha, rotation);
         scene.add(sobreiro);
     }
+    createHouse(10, 1, 10);
+
+    createRoof(10, 1, 10);
 }
 
 function createPerspectiveCamera() {

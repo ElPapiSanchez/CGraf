@@ -52,14 +52,14 @@ function createOvni() {
     // Esfera achatada para o corpo da nave
     const body = new THREE.Mesh(
       new THREE.SphereGeometry(1, 64, 64).scale(15, 3, 15),
-      new THREE.MeshPhongMaterial({ color: 0x006600 })
+      new THREE.MeshPhongMaterial({ color: 0x999999 })
     );
     OVNI.add(body);
   
     // Calote esférica para o cockpit
     const cockpit = new THREE.Mesh(
       new THREE.SphereGeometry(7, 32, 32, 0, 2 * Math.PI, 0, Math.PI / 2),
-      new THREE.MeshPhongMaterial({ color: 0xaaaaff })
+      new THREE.MeshPhongMaterial({ color: 0x99E2EE })
     );
     cockpit.position.y = 1; // Posicionando o cockpit acima do corpo da nave
     OVNI.add(cockpit);

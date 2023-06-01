@@ -21,8 +21,16 @@ let ovniForward = false,
   ovniLeft = false,
   ovniRight = false;
 
+function createGround() {
+  var ground = new THREE.Mesh(
+    new THREE.PlaneGeometry( 1000, 1000, 100, 100), 
+    new THREE.MeshPhongMaterial({ color: 0x003300, wireframe: false }))
+  ground.rotation.x = - (Math.PI / 2);
 
-  function createOvni() {
+  scene.add(ground);
+}
+
+function createOvni() {
 
     OVNI = new THREE.Object3D();
     // Esfera achatada para o corpo da nave
@@ -70,12 +78,14 @@ let ovniForward = false,
     spotTarget = new THREE.Object3D();
     spotTarget.position.set(0, -20, 0);
     OVNI.add(spotTarget);
-    spotLightOvni = new THREE.SpotLight(0xffff00, 40, 1000);
-    cylinder.add(spotLightOvni);
-    spotLightOvni.position.set(cylinder.position);
+
+    spotLightOvni = new THREE.SpotLight(0xffff00, 6, 125, Math.PI/3);
+    spotLightOvni.position.set(cylinder.position.x, cylinder.position.y - 1, cylinder.position.z);
+    OVNI.add(spotLightOvni)
+
     spotLightOvni.target = spotTarget;
         
-    OVNI.position.y = 50;
+    OVNI.position.y = 75;
     scene.add(OVNI);
   }
 
@@ -149,6 +159,8 @@ function createScene() {
     "use strict";
 
     scene = new THREE.Scene();
+
+    createGround();
 
     createOvni();
 

@@ -89,7 +89,7 @@ function createOvni() {
     scene.add(OVNI);
   }
 
-function createSobreiroDescorticado(x, y, z, height, rotation) {
+function createSobreiroDescorticado(x, y, z, height, alpha, rotation) {
 
     var trunks = new THREE.Object3D();
     var mainTrunk = new THREE.Object3D();
@@ -149,6 +149,7 @@ function createSobreiroDescorticado(x, y, z, height, rotation) {
     tree.add(trunks);
     tree.add(mainLeafs);
     tree.add(secLeafs);
+    tree.scale.set(alpha, alpha, alpha);
     tree.rotation.y = rotation;
     tree.position.set(x, y, z);
     return tree;
@@ -167,13 +168,14 @@ function createScene() {
     scene.background = new THREE.Color(0xd3d3d3);
 
     for (let i = 0; i < 5; i++) {
-        const x = 100 - Math.random() * 200; // Posição X aleatória
-        const y = 0; // Posição Y no terreno
-        const z = 100 - Math.random() * 200; // Posição Z aleatória
-        const height = 20 + 5 * Math.random(); // Altura aleatória
+        let x = 25 - Math.random() * 50; // Posição X aleatória
+        let y = 0; // Posição Y no terreno
+        let z = 25 - Math.random() * 50; // Posição Z aleatória
+        const height = 20; // Altura
+        const alpha = Math.random() * (1-0.8) + 0.8;
         const rotation = Math.random() * Math.PI * 2; // Rotação aleatória
 
-        const sobreiro = createSobreiroDescorticado(x, y, z, height, rotation);
+        const sobreiro = createSobreiroDescorticado(x, y, z, height, alpha, rotation);
         scene.add(sobreiro);
     }
 }

@@ -230,10 +230,38 @@ function createHouse(x, y, z){
         0, 1, 0,
         1, 0, 0,
         1, 1, 0,
-        0, 0, 1,
+
+        0, 0, 1, //4
         0, 1, 1,
         1, 0, 1,
-        1, 1, 1
+        1, 1, 1,
+        
+        1/7, 0, 1, //8
+        2/7, 0, 1,
+        3/7, 0, 1,
+        4/7, 0, 1,
+        5/7, 0, 1,
+        6/7, 0, 1,
+        
+        1/7, 1, 1, //14
+        2/7, 1, 1,
+        3/7, 1, 1,
+        4/7, 1, 1,
+        5/7, 1, 1,
+        6/7, 1, 1,
+
+        3/7, 2/3, 1, //20
+        4/7, 2/3, 1,
+
+        1/7, 3/7, 1, //22
+        1/7, 5/7, 1,
+        2/7, 3/7, 1,
+        2/7, 5/7, 1,
+
+        5/7, 3/7, 1, //26
+        5/7, 5/7, 1,
+        6/7, 3/7, 1,
+        6/7, 5/7, 1
     ]);
 
     const indices = [
@@ -241,25 +269,46 @@ function createHouse(x, y, z){
         1, 3, 2,
         0, 5, 1,
         0, 4, 5,
-        4, 6, 5,
-        5, 6, 7,
         2, 7, 6,
-        2, 3, 7
+        2, 3, 7,
+        
+        //parede da frente
+        4, 8, 5, // seccao 1/7
+        5, 8, 14,
+        14, 23, 25, //seccao 2/7 parte de cima
+        14, 25, 15,
+        22, 8, 9, //seccao 2/7 parte de baixo
+        22, 9, 24,
+        15, 9, 10, //seccao 3/7
+        15, 10, 16,
+        16, 20, 21, //seccao 4/7 por cima da porta
+        16, 21, 17,
+        17, 11, 12, //seccao 5/7
+        17, 12, 18,
+        18, 27, 29, //seccao 6/7 parte de cima
+        18, 29, 19,
+        26, 12, 13, //seccao 6/7 parte de baixo
+        26, 13, 28,
+        19, 13, 6, //seccao 7/7
+        19, 6, 7
     ];
 
     geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
     geometry.setIndex(indices);
+    geometry.computeVertexNormals();
 
     const house = new THREE.Object3D();
 
-    const mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: 0xff0000, wireframe: globalWireframe}));
+    const mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({color: 0xffffff}));
 
-    mesh.scale.set(15,10,10);
+    mesh.scale.set(35,15,20);
 
     mesh.position.set(x, y, z);
 
     house.add(mesh);
+
+    house.rotation.y = Math.PI / 3;
 
     scene.add(house);
 }
@@ -287,22 +336,61 @@ function createRoof(x,y,z){
     geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
     geometry.setIndex(indices);
+    geometry.computeVertexNormals();
 
     const roof = new THREE.Object3D();
 
-    const mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: 0xff0000, wireframe: globalWireframe}));
+    const mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({color: 0xAA4A44}));
 
-    mesh.scale.set(15,10,10);
+    mesh.scale.set(35,15,20);
 
     mesh.position.set(x, y, z);
 
     roof.add(mesh);
 
+    roof.rotation.y = Math.PI / 3;
+
     scene.add(roof);
 }
 
 function createDoorAndWindows(x,y,z){
+    const vertices = new Float32Array([
+        0, 0, 0,
+        0, 1, 0,
+        1, 0, 0,
+        1, 1, 0
+    ]);
 
+    const indices = [
+        0, 2, 1,
+        1, 2, 3
+    ];
+
+    geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+    geometry.setIndex(indices);
+    geometry.computeVertexNormals();
+
+    const doorWindow = new THREE.Object3D();
+
+    const meshDoor = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({color: 0xA0522D, wireframe: globalWireframe}));
+    meshDoor.scale.set(5,10,1);
+    meshDoor.position.set(x, y, z);
+    doorWindow.add(meshDoor);
+    
+    const meshWindow1 = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({color: 0x87CEFA, wireframe: globalWireframe}));
+    meshWindow1.scale.set(5,30/7,1);
+    meshWindow1.position.set(x + 10, y + 45/7, z);
+    doorWindow.add(meshWindow1);
+
+    const meshWindow2 = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({color: 0x87CEFA, wireframe: globalWireframe}));
+    meshWindow2.scale.set(5,30/7,1);
+    meshWindow2.position.set(x - 10, y + 45/7, z);
+    doorWindow.add(meshWindow2);
+
+    doorWindow.rotation.y = Math.PI / 3;
+
+    scene.add(doorWindow);
 }
 
 function createAmbientLight() {
@@ -340,9 +428,11 @@ function createScene() {
     const sobreiro6 = createSobreiroDescorticado(50, -9, -80, 21, 1.2, Math.PI/4);
     scene.add(sobreiro6);
     
-    createHouse(10, 1, 10);
+    createHouse(0, 0, -20);
 
-    createRoof(10, 1, 10);
+    createRoof(0, 0, -20);
+
+    createDoorAndWindows(15, 0, 0);
 }
 
 function createPerspectiveCamera() {

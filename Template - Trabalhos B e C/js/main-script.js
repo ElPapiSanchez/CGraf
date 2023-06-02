@@ -3,13 +3,9 @@
 var perspectiveCamera,
     scene,
     renderer,
-    cameraFront,
-    cameraSide,
-    cameraTop,
-    ortographicCamera,
-    activeCamera,
     OVNI,
     spotLightOvni,
+    moon,
     moonLight,
     delta,
     clock,
@@ -27,14 +23,20 @@ let ovniForward = false,
   ovniPointLightsOn = true;
 
 function toggleMoonLight() {
-    if(moonLightOn) moonLight.intensity = 0;
-    else moonLight.intensity = 0.5;
+    if(moonLightOn) {
+        moon.material.emissiveIntensity = 0;
+        moonLight.intensity = 0;
+    }
+    else {
+        moon.material.emissiveIntensity = 1;
+        moonLight.intensity = 0.4;
+    }
     moonLightOn = !moonLightOn;
 }
 
 function toggleOvniSpotLight() {
     if(ovniSpotLightOn) spotLightOvni.intensity = 0;
-    else spotLightOvni.intensity = 6;
+    else spotLightOvni.intensity = 2.5;
     ovniSpotLightOn = !ovniSpotLightOn;
 }
 
@@ -46,7 +48,7 @@ function toggleOvniPointLights() {
     }
     else {
         for (let i = 0; i < 8; i++) {
-            ovniPointLightArray[i].intensity = 2;
+            ovniPointLightArray[i].intensity = 5;
         }
     }
     ovniPointLightsOn = !ovniPointLightsOn;
@@ -76,7 +78,8 @@ function createTerrain() {
             var z = data[row*textureWidth+col+1]/255.0*255-55;
             geometry.getAttribute('position').array[i*3+2] = z;
         }
-    
+        
+        geometry.computeVertexNormals();
         var mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({ color: 0x00bb00, map: texture}));
         mesh.rotation.x = -Math.PI/2;
         mesh.position.y += 10;
@@ -115,7 +118,7 @@ function createOvni() {
         -2,
         radius * Math.sin(angle)
       );
-      const pointLight = new THREE.PointLight(0xffffff, 2, 50);
+      const pointLight = new THREE.PointLight(0xffffff, 5, 7);
       smallSphere.add(pointLight);
       pointLight.position.y -= 1;
       ovniPointLightArray.push(pointLight);
@@ -134,7 +137,7 @@ function createOvni() {
     spotTarget.position.set(0, -20, 0);
     OVNI.add(spotTarget);
 
-    spotLightOvni = new THREE.SpotLight(0xffffff, 3, 125, Math.PI/5);
+    spotLightOvni = new THREE.SpotLight(0xffffff, 2.5, 125, Math.PI/5);
     spotLightOvni.position.set(cylinder.position.x, cylinder.position.y - 1, cylinder.position.z);
     OVNI.add(spotLightOvni)
 
@@ -145,12 +148,12 @@ function createOvni() {
 }
 
 function createMoon() {
-    var moon = new THREE.Mesh(
+    moon = new THREE.Mesh(
         new THREE.SphereGeometry(10, 32, 16),
-        new THREE.MeshStandardMaterial({color: 0xF8FF81, emissive: 0xF8FF81, emissiveIntensity: 1, roughness: 0, metalness: 1})
+        new THREE.MeshPhongMaterial({color: 0xF8FF81, emissive: 0xF8FF81, emissiveIntensity: 1, roughness: 0, metalness: 1})
     );
 
-    moonLight = new THREE.DirectionalLight(0xF8FF81, 0.5);
+    moonLight = new THREE.DirectionalLight(0xF8FF81, 0.4);
     moonLight.position.set(170, 160, 110);
     scene.add(moonLight);
 
@@ -395,7 +398,7 @@ function createDoorAndWindows(x,y,z){
 
 function createAmbientLight() {
     "use strict";
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
     scene.add(ambientLight);
 }
 
@@ -428,11 +431,11 @@ function createScene() {
     const sobreiro6 = createSobreiroDescorticado(50, -9, -80, 21, 1.2, Math.PI/4);
     scene.add(sobreiro6);
     
-    createHouse(0, 0, -20);
+    createHouse(-24, -1, -20);
 
-    createRoof(0, 0, -20);
+    createRoof(-24, -1, -20);
 
-    createDoorAndWindows(15, 0, 0);
+    createDoorAndWindows(-9, -1, 0);
 }
 
 function createPerspectiveCamera() {
@@ -453,38 +456,6 @@ function createPerspectiveCamera() {
     return perspectiveCamera;
 }
 
-function createOrthographicCamera(place) {
-    "use strict";
-    var camera;
-
-    camera = new THREE.OrthographicCamera(
-        window.innerWidth / -16,
-        window.innerWidth / 16,
-        window.innerHeight / 16,
-        window.innerHeight / -16,
-        1,
-        1000
-    );
-
-    switch (place) {
-        case "front":
-            camera.position.set(0, 0, 200);
-            break;
-        case "side":
-            camera.position.set(200, 0, 0);
-            break;
-        case "top":
-            camera.position.set(0, 200, 0);
-            break;
-        case "default":
-            camera.position.set(50, 50, 50);
-            break;
-    }
-
-    camera.lookAt(scene.position);
-    return camera;
-}
-
 function onResize() {
     "use strict";
 
@@ -501,19 +472,8 @@ function onKeyDown(e) {
 
     switch (e.keyCode) {
         case 49: // 1 key
-            activeCamera = cameraFront;
             break;
         case 50: // 2 key
-            activeCamera = cameraSide;
-            break;
-        case 51: // 3 key
-            activeCamera = cameraTop;
-            break;
-        case 52: // 4 key
-            activeCamera = ortographicCamera;
-            break;
-        case 53: // 5 key
-            activeCamera = perspectiveCamera;
             break;
         case 37: //left
             ovniRight = true;
@@ -567,7 +527,7 @@ function onKeyUp(e) {
 
 function render() {
     "use strict";
-    renderer.render(scene, activeCamera);
+    renderer.render(scene, perspectiveCamera);
 }
 
 function checkCollision(){
@@ -587,12 +547,7 @@ function init() {
 
     createScene();
     perspectiveCamera = createPerspectiveCamera();
-    cameraFront = createOrthographicCamera("front");
-    cameraSide = createOrthographicCamera("side");
-    cameraTop = createOrthographicCamera("top");
-    ortographicCamera = createOrthographicCamera("default");
-    activeCamera = perspectiveCamera;
-    controls = new THREE.OrbitControls(activeCamera, renderer.domElement);
+    controls = new THREE.OrbitControls(perspectiveCamera, renderer.domElement);
 
 
     window.addEventListener("keydown", onKeyDown);

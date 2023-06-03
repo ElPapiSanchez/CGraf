@@ -5,6 +5,7 @@ var perspectiveCamera,
     renderer,
     OVNI,
     spotLightOvni,
+    skydome,
     moon,
     moonLight,
     delta,
@@ -53,6 +54,60 @@ function toggleOvniPointLights() {
     }
     ovniPointLightsOn = !ovniPointLightsOn;
 }
+
+function createSkydome() {
+    const skyGeometry = new THREE.SphereGeometry(550, 256, 256, 0, 2 * Math.PI, 0, Math.PI / 2);
+    skyGeometry.computeVertexNormals();
+  
+    skydome = new THREE.Mesh(skyGeometry, new THREE.MeshPhongMaterial({map: null, side: THREE.BackSide}));
+    skydome.position.y -= 20;
+    scene.add(skydome);
+}
+
+function updateSkydomeTexture () {
+    const texture = generateStarrySkyTexture();
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(5, 1);
+    skydome.material.map = texture;
+    skydome.material.needsUpdate = true;
+}
+  
+function generateStarrySkyTexture() {
+    const canvas = document.createElement("canvas");
+    canvas.width = 512;
+    canvas.height = 512;
+
+    const context = canvas.getContext("2d");
+
+    // Criar a cor do fundo
+    const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0, "rgb(0, 0, 64)");
+    gradient.addColorStop(1, "rgb(50, 0, 62)");
+
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Desenhar as estrelas brancas
+    const numStars = 500;
+    const starRadius = 1;
+
+    for (let i = 0; i < numStars; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+
+        context.beginPath();
+        context.arc(x, y, starRadius, 0, 2 * Math.PI);
+        context.fillStyle = "rgb(255, 255, 255)";
+        context.fill();
+    }
+
+    const texture = new THREE.Texture(canvas);
+    texture.needsUpdate = true;
+
+    return texture;
+}
+  
 
 function createTerrain() {
 
@@ -150,14 +205,14 @@ function createOvni() {
 function createMoon() {
     moon = new THREE.Mesh(
         new THREE.SphereGeometry(10, 32, 16),
-        new THREE.MeshPhongMaterial({color: 0xF8FF81, emissive: 0xF8FF81, emissiveIntensity: 1, roughness: 0, metalness: 1})
+        new THREE.MeshPhongMaterial({color: 0xF8FF81, emissive: 0xF8FF81, emissiveIntensity: 1})
     );
 
     moonLight = new THREE.DirectionalLight(0xF8FF81, 0.4);
-    moonLight.position.set(170, 160, 110);
+    moonLight.position.set(220, 300, 140);
     scene.add(moonLight);
 
-    moon.position.set(170, 160, 110);
+    moon.position.set(220, 300, 140);
     scene.add(moon);
 }
 
@@ -412,11 +467,13 @@ function createScene() {
 
     createTerrain();
 
+    createSkydome();
+
     createMoon();
 
     createOvni();
 
-    scene.background = new THREE.Color(0x000045);
+    scene.background = new THREE.Color(0x000000);
     
     const sobreiro1 = createSobreiroDescorticado(50, -6, 0, 20, 1.25, 0);
     scene.add(sobreiro1);
@@ -472,6 +529,7 @@ function onKeyDown(e) {
 
     switch (e.keyCode) {
         case 49: // 1 key
+            updateSkydomeTexture ()
             break;
         case 50: // 2 key
             break;
@@ -548,7 +606,6 @@ function init() {
     createScene();
     perspectiveCamera = createPerspectiveCamera();
     controls = new THREE.OrbitControls(perspectiveCamera, renderer.domElement);
-
 
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup", onKeyUp);

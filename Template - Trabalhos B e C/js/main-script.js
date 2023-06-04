@@ -5,6 +5,7 @@ var perspectiveCamera,
     renderer,
     OVNI,
     spotLightOvni,
+    terrain,
     skydome,
     moon,
     moonLight,
@@ -30,7 +31,7 @@ function toggleMoonLight() {
     }
     else {
         moon.material.emissiveIntensity = 1;
-        moonLight.intensity = 0.4;
+        moonLight.intensity = 0.2;
     }
     moonLightOn = !moonLightOn;
 }
@@ -64,13 +65,58 @@ function createSkydome() {
     scene.add(skydome);
 }
 
-function updateSkydomeTexture () {
+function updateSkydomeTexture() {
     const texture = generateStarrySkyTexture();
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
     texture.repeat.set(5, 1);
     skydome.material.map = texture;
     skydome.material.needsUpdate = true;
+}
+
+function updateTerrainTexture() {
+    const texture = generateFloralTerrainTexture();
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(3, 3);
+    terrain.material.map = texture;
+    terrain.material.needsUpdate = true;
+}
+
+function generateFloralTerrainTexture() {
+    const canvas = document.createElement("canvas");
+    canvas.width = 512;
+    canvas.height = 512;
+
+    const context = canvas.getContext("2d");
+
+    // Criar a cor do fundo
+    const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0, "lightgreen");
+    gradient.addColorStop(1, "lightgreen");
+
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Desenhar as estrelas brancas
+    const numFlowers = 1500;
+    const flowerRadius = 1.5;
+    const flowerColors = ["#FFFFFF", "#FFFF00", "#E6E6FA", "#ADD8E6"];
+
+    for (let i = 0; i < numFlowers; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+
+        context.beginPath();
+        context.arc(x, y, flowerRadius, 0, 2 * Math.PI);
+        context.fillStyle = flowerColors[Math.floor(Math.random() * flowerColors.length)];
+        context.fill();
+    }
+
+    const texture = new THREE.Texture(canvas);
+    texture.needsUpdate = true;
+
+    return texture;
 }
   
 function generateStarrySkyTexture() {
@@ -135,10 +181,10 @@ function createTerrain() {
         }
         
         geometry.computeVertexNormals();
-        var mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({ color: 0x00bb00, map: texture}));
-        mesh.rotation.x = -Math.PI/2;
-        mesh.position.y += 10;
-        scene.add(mesh);
+        terrain = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({map: texture}));
+        terrain.rotation.x = -Math.PI/2;
+        terrain.position.y += 10;
+        scene.add(terrain);
     });
 }
 
@@ -208,7 +254,7 @@ function createMoon() {
         new THREE.MeshPhongMaterial({color: 0xF8FF81, emissive: 0xF8FF81, emissiveIntensity: 1})
     );
 
-    moonLight = new THREE.DirectionalLight(0xF8FF81, 0.4);
+    moonLight = new THREE.DirectionalLight(0xF8FF81, 0.2);
     moonLight.position.set(220, 300, 140);
     scene.add(moonLight);
 
@@ -529,9 +575,10 @@ function onKeyDown(e) {
 
     switch (e.keyCode) {
         case 49: // 1 key
-            updateSkydomeTexture ()
+            updateSkydomeTexture();
             break;
         case 50: // 2 key
+            updateTerrainTexture();
             break;
         case 37: //left
             ovniRight = true;

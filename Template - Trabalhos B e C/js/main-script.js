@@ -24,6 +24,8 @@ let ovniForward = false,
   ovniSpotLightOn = true,
   ovniPointLightsOn = true;
 
+var objetos =  [];
+
 function toggleMoonLight() {
     if(moonLightOn) {
         moon.material.emissiveIntensity = 0;
@@ -63,6 +65,7 @@ function createSkydome() {
     skydome = new THREE.Mesh(skyGeometry, new THREE.MeshPhongMaterial({map: null, side: THREE.BackSide}));
     skydome.position.y -= 20;
     scene.add(skydome);
+    objetos.push(skydome);
 }
 
 function updateSkydomeTexture() {
@@ -158,7 +161,7 @@ function generateStarrySkyTexture() {
 function createTerrain() {
 
     var loader = new THREE.TextureLoader();
-    loader.load('https://web.tecnico.ulisboa.pt/~ist146643/cg/dagoba/map.png', function(texture) {
+    loader.load('js/utils/terrain.png', function(texture) {
   
         var geometry = new THREE.PlaneGeometry(1100,1100,100,100);
         
@@ -185,6 +188,7 @@ function createTerrain() {
         terrain.rotation.x = -Math.PI/2;
         terrain.position.y += 10;
         scene.add(terrain);
+        objetos.push(terrain);
     });
 }
 
@@ -197,6 +201,7 @@ function createOvni() {
       new THREE.MeshPhongMaterial({ color: 0x999999 })
     );
     OVNI.add(body);
+    objetos.push(body);
   
     // Calote esférica para o cockpit
     const cockpit = new THREE.Mesh(
@@ -205,6 +210,7 @@ function createOvni() {
     );
     cockpit.position.y = 1; // Posicionando o cockpit acima do corpo da nave
     OVNI.add(cockpit);
+    objetos.push(cockpit)
   
     // Esferas no fundo da nave
     for (let i = 0; i < 8; i++) {
@@ -224,6 +230,7 @@ function createOvni() {
       pointLight.position.y -= 1;
       ovniPointLightArray.push(pointLight);
       OVNI.add(smallSphere);
+      objetos.push(smallSphere);
     }
     // Cilindro achatado no centro da parte de baixo da nave
     const cylinder = new THREE.Mesh(
@@ -232,6 +239,7 @@ function createOvni() {
     );
     cylinder.position.y = -2.5;
     OVNI.add(cylinder);
+    objetos.push(cylinder);
   
     // Adicionar spotlight
     spotTarget = new THREE.Object3D();
@@ -260,6 +268,7 @@ function createMoon() {
 
     moon.position.set(220, 300, 140);
     scene.add(moon);
+    objetos.push(moon);
 }
 
 function createSobreiroDescorticado(x, y, z, height, alpha, rotation) {
@@ -317,11 +326,15 @@ function createSobreiroDescorticado(x, y, z, height, alpha, rotation) {
 
     trunks.add(secTrunk);
     trunks.add(mainTrunk);
+    objetos.push(secTrunk);
+    objetos.push(mainTrunk);
     trunks.rotation.x = -Math.PI / 9;
     trunks.position.set(0,-0.5,0);
     tree.add(trunks);
     tree.add(mainLeafs);
     tree.add(secLeafs);
+    objetos.push(mainLeafs);
+    objetos.push(secLeafs);
     tree.scale.set(alpha, alpha, alpha);
     tree.rotation.y = rotation;
     tree.position.set(x, y, z);
@@ -415,6 +428,7 @@ function createHouse(x, y, z){
     house.rotation.y = Math.PI / 3;
 
     scene.add(house);
+    objetos.push(house);
 }
 
 function createRoof(x,y,z){
@@ -455,6 +469,7 @@ function createRoof(x,y,z){
     roof.rotation.y = Math.PI / 3;
 
     scene.add(roof);
+    objetos.push(roof);
 }
 
 function createDoorAndWindows(x,y,z){
@@ -481,16 +496,19 @@ function createDoorAndWindows(x,y,z){
     meshDoor.scale.set(5,10,1);
     meshDoor.position.set(x, y, z);
     doorWindow.add(meshDoor);
+    objetos.push(meshDoor);
     
     const meshWindow1 = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({color: 0x87CEFA, wireframe: globalWireframe}));
     meshWindow1.scale.set(5,30/7,1);
     meshWindow1.position.set(x + 10, y + 45/7, z);
     doorWindow.add(meshWindow1);
+    objetos.push(meshWindow1);
 
     const meshWindow2 = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({color: 0x87CEFA, wireframe: globalWireframe}));
     meshWindow2.scale.set(5,30/7,1);
     meshWindow2.position.set(x - 10, y + 45/7, z);
     doorWindow.add(meshWindow2);
+    objetos.push(meshWindow2);
 
     doorWindow.rotation.y = Math.PI / 3;
 

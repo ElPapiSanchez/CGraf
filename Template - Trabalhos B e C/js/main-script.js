@@ -632,7 +632,11 @@ function onKeyUp(e) {
 
 function render() {
     "use strict";
-    renderer.render(scene, perspectiveCamera);
+    renderer.setAnimationLoop( function () {
+
+        renderer.render( scene, perspectiveCamera );
+
+    } );
 }
 
 function checkCollision(){
@@ -647,6 +651,8 @@ function init() {
     });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
+    document.body.appendChild( VRButton.createButton( renderer ) );
+    renderer.xr.enabled = true;
 
     clock = new THREE.Clock();
 

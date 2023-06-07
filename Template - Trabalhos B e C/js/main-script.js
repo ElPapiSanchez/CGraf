@@ -13,7 +13,7 @@ var perspectiveCamera,
     clock,
     controls;
 
-var geometry, material, mesh, globalWireframe = false;
+var geometry, material, mesh;
 
 let ovniForward = false,
   ovniBackward = false,
@@ -56,6 +56,58 @@ function toggleOvniPointLights() {
         }
     }
     ovniPointLightsOn = !ovniPointLightsOn;
+}
+
+function changeToPhong(){
+    var tempMat;
+    for(obj in objetos){
+        tempMat = new THREE.MeshPhongMaterial({
+            color: obj.material.color, 
+            map: obj.material.map, 
+            side: obj.material.side, 
+            emissive: obj.material.emissive,
+            emissiveIntensity: obj.material.emissiveIntensity});
+        obj.material = tempMat;
+    }
+}
+
+function changeToGourand(){
+    var tempMat;
+    for(obj in objetos){
+        tempMat = new THREE.MeshLambertMaterial({
+            color: obj.material.color, 
+            map: obj.material.map, 
+            side: obj.material.side, 
+            emissive: obj.material.emissive,
+            emissiveIntensity: obj.material.emissiveIntensity});
+        obj.material = tempMat;
+    }
+}
+
+function changeToCartoon(){
+    var tempMat;
+    for(obj in objetos){
+        tempMat = new THREE.MeshToonMaterial({
+            color: obj.material.color, 
+            map: obj.material.map, 
+            side: obj.material.side, 
+            emissive: obj.material.emissive,
+            emissiveIntensity: obj.material.emissiveIntensity});
+        obj.material = tempMat;
+    }
+}
+
+function changeToBasic(){
+    var tempMat;
+    for(obj in objetos){
+        tempMat = new THREE.MeshBasicMaterial({
+            color: obj.material.color, 
+            map: obj.material.map, 
+            side: obj.material.side, 
+            emissive: obj.material.emissive,
+            emissiveIntensity: obj.material.emissiveIntensity});
+        obj.material = tempMat;
+    }
 }
 
 function createSkydome() {
@@ -288,23 +340,32 @@ function createSobreiroDescorticado(x, y, z, height, alpha, rotation) {
     var mainTrunkWear = new THREE.Mesh(
         new THREE.CylinderGeometry(2, 2, wearHeight, 32),
         wearMaterial);
+    objetos.push(mainTrunkWear);
+
     var mainTrunkNaked = new THREE.Mesh(
         new THREE.CylinderGeometry(1.8, 1.8, nakedHeight, 32),
         nakedMaterial);
+    objetos.push(mainTrunkNaked);
 
     var secTrunkWear = new THREE.Mesh(
         new THREE.CylinderGeometry(1.8, 1.8, wearHeight, 32),
         wearMaterial);
+    objetos.push(secTrunkWear);
+
     var secTrunkNaked = new THREE.Mesh(
         new THREE.CylinderGeometry(1.5, 1.5, nakedHeight / 1.5, 32),
         nakedMaterial);
+    objetos.push(secTrunkNaked);
 
     var mainLeafMesh = new THREE.Mesh(
         new THREE.SphereGeometry(1, 64, 64).scale(8, 7, 12),
         treeMaterial);
+    objetos.push(mainLeafMesh);
+
     var secLeafMesh = new THREE.Mesh(
         new THREE.SphereGeometry(1, 64, 64).scale(8, 7, 12),
         treeMaterial);
+    objetos.push(secLeafMesh);
 
     mainTrunkWear.position.set(0, nakedHeight / 2, 0);
     mainTrunk.add(mainTrunkWear);
@@ -326,15 +387,11 @@ function createSobreiroDescorticado(x, y, z, height, alpha, rotation) {
 
     trunks.add(secTrunk);
     trunks.add(mainTrunk);
-    objetos.push(secTrunk);
-    objetos.push(mainTrunk);
     trunks.rotation.x = -Math.PI / 9;
     trunks.position.set(0,-0.5,0);
     tree.add(trunks);
     tree.add(mainLeafs);
     tree.add(secLeafs);
-    objetos.push(mainLeafs);
-    objetos.push(secLeafs);
     tree.scale.set(alpha, alpha, alpha);
     tree.rotation.y = rotation;
     tree.position.set(x, y, z);
@@ -428,7 +485,7 @@ function createHouse(x, y, z){
     house.rotation.y = Math.PI / 3;
 
     scene.add(house);
-    objetos.push(house);
+    objetos.push(mesh);
 }
 
 function createRoof(x,y,z){
@@ -469,7 +526,7 @@ function createRoof(x,y,z){
     roof.rotation.y = Math.PI / 3;
 
     scene.add(roof);
-    objetos.push(roof);
+    objetos.push(mesh);
 }
 
 function createDoorAndWindows(x,y,z){
@@ -492,19 +549,19 @@ function createDoorAndWindows(x,y,z){
 
     const doorWindow = new THREE.Object3D();
 
-    const meshDoor = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({color: 0xA0522D, wireframe: globalWireframe}));
+    const meshDoor = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({color: 0xA0522D}));
     meshDoor.scale.set(5,10,1);
     meshDoor.position.set(x, y, z);
     doorWindow.add(meshDoor);
     objetos.push(meshDoor);
     
-    const meshWindow1 = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({color: 0x87CEFA, wireframe: globalWireframe}));
+    const meshWindow1 = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({color: 0x87CEFA}));
     meshWindow1.scale.set(5,30/7,1);
     meshWindow1.position.set(x + 10, y + 45/7, z);
     doorWindow.add(meshWindow1);
     objetos.push(meshWindow1);
 
-    const meshWindow2 = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({color: 0x87CEFA, wireframe: globalWireframe}));
+    const meshWindow2 = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({color: 0x87CEFA}));
     meshWindow2.scale.set(5,30/7,1);
     meshWindow2.position.set(x - 10, y + 45/7, z);
     doorWindow.add(meshWindow2);
@@ -616,17 +673,41 @@ function onKeyDown(e) {
         case 100: //d
             toggleMoonLight();
             break;
+        case 69: //E
+            changeToCartoon();
+            break;
+        case 101: //e
+            changeToCartoon();
+            break;
         case 80: //P
             toggleOvniPointLights();
             break;
         case 112: //p
             toggleOvniPointLights();
             break;
+        case 81: //Q
+            changeToGourand();
+            break;
+        case 113: //q
+            changeToGourand();
+            break;
+        case 82: //R
+            changeToBasic();
+            break;
+        case 114: //r
+            changeToBasic();
+            break;
         case 83: //S
             toggleOvniSpotLight();
             break;
         case 115: //s
             toggleOvniSpotLight();
+            break;
+        case 86: //wW
+            changeToPhong();
+            break;
+        case 118:
+            changeToPhong();
             break;
     }
 }

@@ -60,7 +60,7 @@ function toggleOvniPointLights() {
 
 function changeToPhong(){
     var tempMat;
-    for(obj in objetos){
+    for(obj of objetos){
         tempMat = new THREE.MeshPhongMaterial({
             color: obj.material.color, 
             map: obj.material.map, 
@@ -73,7 +73,7 @@ function changeToPhong(){
 
 function changeToGourand(){
     var tempMat;
-    for(obj in objetos){
+    for(obj of objetos){
         tempMat = new THREE.MeshLambertMaterial({
             color: obj.material.color, 
             map: obj.material.map, 
@@ -86,7 +86,7 @@ function changeToGourand(){
 
 function changeToCartoon(){
     var tempMat;
-    for(obj in objetos){
+    for(obj of objetos){
         tempMat = new THREE.MeshToonMaterial({
             color: obj.material.color, 
             map: obj.material.map, 
@@ -99,7 +99,7 @@ function changeToCartoon(){
 
 function changeToBasic(){
     var tempMat;
-    for(obj in objetos){
+    for(obj of objetos){
         tempMat = new THREE.MeshBasicMaterial({
             color: obj.material.color, 
             map: obj.material.map, 
@@ -117,7 +117,6 @@ function createSkydome() {
     skydome = new THREE.Mesh(skyGeometry, new THREE.MeshPhongMaterial({map: null, side: THREE.BackSide}));
     skydome.position.y -= 20;
     scene.add(skydome);
-    objetos.push(skydome);
 }
 
 function updateSkydomeTexture() {
@@ -703,7 +702,7 @@ function onKeyDown(e) {
         case 115: //s
             toggleOvniSpotLight();
             break;
-        case 86: //wW
+        case 86: //mudar para wW, neste momento ta o V
             changeToPhong();
             break;
         case 118:

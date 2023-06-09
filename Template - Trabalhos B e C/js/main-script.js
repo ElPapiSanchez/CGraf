@@ -702,10 +702,10 @@ function onKeyDown(e) {
         case 115: //s
             toggleOvniSpotLight();
             break;
-        case 86: //mudar para wW, neste momento ta o V
+        case 87: //W
             changeToPhong();
             break;
-        case 118:
+        case 119: //w
             changeToPhong();
             break;
     }
